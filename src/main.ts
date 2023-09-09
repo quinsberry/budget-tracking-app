@@ -3,9 +3,18 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppConfiguration } from './shared/config/configuration';
+import { LogLevel } from '@nestjs/common';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, { cors: false });
+	const prodLogLevels: LogLevel[] = ['log', 'error', 'warn'];
+	const devLogLevels: LogLevel[] = ['log', 'error', 'warn', 'debug', 'verbose'];
+  
+	const logLevels = process.env.NODE_ENV === 'production' ? prodLogLevels : devLogLevels;
+  
+	const app = await NestFactory.create(AppModule, {
+		cors: false,
+		logger: logLevels,
+	});
 
     const configService = app.get(ConfigService);
     const config = configService.get<AppConfiguration>('app');
