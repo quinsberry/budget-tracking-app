@@ -8,44 +8,86 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator erd {
+  provider = "prisma-erd-generator-markdown"
+  output   = "./ERD.md"
+}
+
 model User {
-  id        Int   @id @default(autoincrement())
-  email     String   @unique
-  password  String
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String        @unique
+  password  String?
   fullName  String
   cards     Card[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  settings  UserSettings?
+}
+
+model UserSettings {
+  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  colorScheme ColorScheme @default(System)
+  userId      String      @unique @db.Uuid
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locale      Locale?     @relation(fields: [localeId], references: [id], onDelete: Cascade)
+  localeId    String?     @db.VarChar(15)
+}
+
+model Locale {
+  id           String         @unique @db.VarChar(15)
+  languageCode String
+  countryCode  String?
+  script       String?
+  formalName   String
+  nativeName   String
+  commonName   String?
+  userSettings UserSettings[]
+}
+
+enum ColorScheme {
+  System
+  Light
+  Dark
 }
 
 model Card {
-  id           Int        @id @default(autoincrement())
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   description  String?
   transactions Transaction[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   bank         String
-  userId       Int
-  user         User          @relation(fields: [userId], references: [id])
+  userId       String        @db.Uuid
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
-  id           String           @id @default(uuid())
-  originalId   String
-  description  String?
-  tags         TransactionTag[]
-  amount       Decimal
-  currencyCode Int
-  createdAt    DateTime         @default(now())
-  cardId       Int
-  card         Card             @relation(fields: [cardId], references: [id])
+  id                  String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  originalId          String
+  description         String?
+  originalDescription String?
+  tags                TransactionTagsOfTransaction[]
+  amount              Decimal
+  currencyCode        Int
+  createdAt           DateTime                       @default(now())
+  cardId              String                         @db.Uuid
+  card                Card                           @relation(fields: [cardId], references: [id], onDelete: Cascade)
 }
 
 model TransactionTag {
-  id            Int         @id @default(autoincrement())
-  name          String
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  transactionId String
-  transaction   Transaction @relation(fields: [transactionId], references: [id])
+  id           Int                            @id @default(autoincrement())
+  name         String
+  transactions TransactionTagsOfTransaction[]
+  createdAt    DateTime                       @default(now())
+  updatedAt    DateTime                       @updatedAt
+}
+
+model TransactionTagsOfTransaction {
+  transactionId String         @db.Uuid
+  transaction   Transaction    @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  tagId         Int
+  tag           TransactionTag @relation(fields: [tagId], references: [id])
+  createdAt     DateTime       @default(now())
+
+  @@id([transactionId, tagId])
 }

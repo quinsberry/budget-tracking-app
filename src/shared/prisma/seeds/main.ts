@@ -1,27 +1,14 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-import { PasswordService } from '../services/password.service';
+import { PrismaClient } from '@prisma/client';
+import { PasswordService } from '../../services/password.service';
+import { users, transactionTags } from './data';
 
 const prisma = new PrismaClient();
 const passwordService = new PasswordService();
 
-const userData: Prisma.UserCreateInput[] = [
-    {
-        fullName: 'Alice',
-        email: 'alice@prisma.io',
-        password: 'asd',
-    },
-    {
-        fullName: 'John',
-        email: 'john@prisma.io',
-        password: 'pass',
-    },
-];
-
-async function main() {
-    console.log(`Start seeding...`);
-    for (const u of userData) {
+async function seedUsers(): Promise<any> {
+    return Promise.all(users.map(async u => {
         const hashedPassword = await passwordService.hashPassword(u.password);
-        await prisma.user.upsert({
+        return prisma.user.upsert({
             where: { email: u.email },
             update: {},
             create: {
@@ -29,7 +16,14 @@ async function main() {
                 password: hashedPassword,
             },
         });
-    }
+    }));
+}
+
+async function main() {
+    console.log(`Start seeding...`);
+    Promise.all([
+        seedUsers(),
+    ]);
     console.log(`Seeding finished.`);
 }
 
