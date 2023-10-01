@@ -5,6 +5,10 @@ export const configuration = () => ({
         cors: {
             enabled: true,
         },
+        jwt: {
+            secret: process.env.JWT_SECRET,
+            expiresIn: process.env.JWT_EXPIRES_IN,
+        },
         swagger: {
             enabled: true,
             title: 'Budget Tracking App',

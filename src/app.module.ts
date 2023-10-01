@@ -6,7 +6,6 @@ import { versionRoutes } from './versions.router';
 import { join } from 'path';
 import { configuration } from './shared/config/configuration';
 import { envSchema } from './shared/config/validation';
-import { UsersModule } from './v1/users/users.module';
 import { PrismaModule } from './shared/prisma/prisma.module';
 import { loggingMiddleware } from './shared/prisma/utils/LoggingMiddleware';
 
@@ -34,7 +33,7 @@ const envFilePath = join(process.cwd(), envFileName);
     }),
     RouterModule.register(versionRoutes),
     V1Module,
-    UsersModule,
   ],
+  providers: [],
 })
 export class AppModule {}

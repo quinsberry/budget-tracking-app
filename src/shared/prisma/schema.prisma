@@ -28,7 +28,7 @@ model UserSettings {
   id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   colorScheme ColorScheme @default(System)
   userId      String      @unique @db.Uuid
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   locale      Locale?     @relation(fields: [localeId], references: [id], onDelete: Cascade)
   localeId    String?     @db.VarChar(15)
 }
