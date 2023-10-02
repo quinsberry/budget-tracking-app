@@ -7,12 +7,7 @@ export class UsersService {
     constructor(private prisma: PrismaService) {}
 
     getAll() {
-        return this.prisma.user.findMany({
-            include: {
-                settings: true,
-                cards: true,
-            },
-        });
+        return this.prisma.user.findMany();
     }
 
     findByEmail(email: string) {
@@ -30,6 +25,7 @@ export class UsersService {
             },
             include: {
                 settings: true,
+                cards: true,
             },
         });
     }

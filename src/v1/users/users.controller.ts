@@ -7,17 +7,17 @@ import { exclude } from '../../shared/prisma/utils/exclude';
 
 @Controller()
 @ApiTags('users')
-@ApiBearerAuth()
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Get('/getAll')
+    @Get()
     async getAll() {
         const users = await this.usersService.getAll();
         return users.map((user) => exclude(user, ['password']));
     }
 
     @Get('/me')
+    @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     async getMe(@UserId() id: string) {
         const user = await this.usersService.findById(id);

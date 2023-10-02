@@ -7,15 +7,11 @@ import { PasswordService } from '../../shared/services/password.service';
 
 @Injectable()
 export class AuthService {
-    constructor(
-        private usersService: UsersService,
-        private jwtService: JwtService,
-        private passwordService: PasswordService
-    ) {}
+    constructor(private usersService: UsersService, private jwtService: JwtService, private hashService: PasswordService) {}
 
     async validateUser(email: string, password: string): Promise<Omit<User, 'password'>> {
         const user = await this.usersService.findByEmail(email);
-        const passwordValid = await this.passwordService.comparePassword(user.password, password);
+        const passwordValid = await this.hashService.comparePassword(user.password, password);
         if (user && passwordValid) {
             const { password, ...result } = user;
             return result;
@@ -24,7 +20,7 @@ export class AuthService {
     }
 
     async register(dto: CreateUserDto) {
-        const hashedPassword = await this.passwordService.hashPassword(dto.password);
+        const hashedPassword = await this.hashService.hashPassword(dto.password);
         const user = await this.usersService.create({
             ...dto,
             password: hashedPassword,

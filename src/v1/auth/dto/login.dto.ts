@@ -9,12 +9,12 @@ const LoginSchema = z.object({
 
 export class LoginDto extends createZodDto(LoginSchema) {
     @ApiProperty({
-        default: 'email@example.com',
+        default: 'test@test.com',
     })
     email: string;
 
     @ApiProperty({
-        default: '123qweRTY!=',
+        default: 'password',
     })
     password: string;
 }

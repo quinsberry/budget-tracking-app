@@ -50,15 +50,37 @@ enum ColorScheme {
   Dark
 }
 
+enum AvailableBank {
+  Monobank
+  PKO
+}
+
 model Card {
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  description  String?
-  transactions Transaction[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  bank         String
-  userId       String        @db.Uuid
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  description     String?
+  cardNumber      String
+  transactions    Transaction[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  bank            AvailableBank
+  monobankDetails MonobankDetails?
+  pkoDetails      PKODetails?
+  userId          String           @db.Uuid
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MonobankDetails {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token  String
+  cardId String @unique @db.Uuid
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+}
+
+model PKODetails {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token  String
+  cardId String @unique @db.Uuid
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {

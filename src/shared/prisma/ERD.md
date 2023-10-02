@@ -5,6 +5,10 @@ erDiagram
 		value Light
 		value Dark
 	}
+	AvailableBank {
+		value Monobank
+		value PKO
+	}
 	User {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String email
@@ -31,10 +35,21 @@ erDiagram
 	Card {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String description  "nullable"
+		String cardNumber
 		DateTime createdAt  "now()"
 		DateTime updatedAt
-		String bank
+		AvailableBank bank
 		String userId FK
+	}
+	MonobankDetails {
+		String id PK  "dbgenerated(gen_random_uuid())"
+		String token
+		String cardId FK
+	}
+	PKODetails {
+		String id PK  "dbgenerated(gen_random_uuid())"
+		String token
+		String cardId FK
 	}
 	Transaction {
 		String id PK  "dbgenerated(gen_random_uuid())"
@@ -61,7 +76,12 @@ erDiagram
 	UserSettings }|--|{ User : user
 	UserSettings }o--|| Locale : locale
 	UserSettings }o--|| ColorScheme : "enum:colorScheme"
+	Card }|--|{ MonobankDetails : monobankDetails
+	Card }|--|{ PKODetails : pkoDetails
 	Card }o--|| User : user
+	Card }o--|| AvailableBank : "enum:bank"
+	MonobankDetails }|--|{ Card : card
+	PKODetails }|--|{ Card : card
 	Transaction }o--|| Card : card
 	TransactionTagsOfTransaction }o--|| Transaction : transaction
 	TransactionTagsOfTransaction }o--|| TransactionTag : tag
