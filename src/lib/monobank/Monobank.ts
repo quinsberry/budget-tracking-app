@@ -1,19 +1,18 @@
-import { Mono, MonoResponse } from "./Mono";
-import { ClientInfo, Invoice } from "./types";
-import { fetchClientInfoSchema, fetchInvoicesSchema } from "./utils/validation/responses";
+import { Mono, MonoResponse } from './Mono';
+import { ClientInfo, Invoice } from './types';
+import { fetchClientInfoSchema, fetchInvoicesSchema } from './utils/validation/responses';
 
-export type InvoiceAutoResponse = { data: Invoice[], waitForNextPortion?: number };
+export type InvoiceAutoResponse = { data: Invoice[]; waitForNextPortion?: number };
 
 const transformMonoError = (error: { errorDescription: string }) => ({
     data: [],
     error: error.errorDescription,
 });
 interface Response {
-    data: Invoice[], 
+    data: Invoice[];
     waitForNextPortion?: number;
     error?: string;
 }
-
 
 export class Monobank extends Mono {
     private readonly maxTimeRange = 2682000;
@@ -24,8 +23,8 @@ export class Monobank extends Mono {
     private invoiceFetchCouldown = 5000;
 
     async fetchClientInfo({ token }: { token?: string }): Promise<MonoResponse<ClientInfo>> {
-        if (token === null || this.token === null) throw new Error('This operation requires a token');
-        const response = await super.fetchClientInfo({});
+        if (token ? false : this.token ? false : true) throw new Error('This operation requires a token');
+        const response = await super.fetchClientInfo({ token });
         return fetchClientInfoSchema.parse(response) as MonoResponse<ClientInfo>;
     }
 
@@ -40,18 +39,20 @@ export class Monobank extends Mono {
         from: number;
         to?: number;
     }): Promise<MonoResponse<Invoice[]>> {
-        if (token === null || this.token === null) throw new Error('This operation requires a token');
-        if (to && to - from > this.maxTimeRange) throw new Error(`The maximum time range is ${this.maxTimeRange} seconds, your is: ${to - from}`);
+        if (token ? false : this.token ? false : true) throw new Error('This operation requires a token');
+        if (to && to - from > this.maxTimeRange)
+            throw new Error(`The maximum time range is ${this.maxTimeRange} seconds, your is: ${to - from}`);
         const minFrom = Math.floor(Date.now() / 1000 - this.maxTimeRange);
-        if (!to && from < minFrom) throw new Error(`The maximum time range is ${this.maxTimeRange} seconds, your is: ${minFrom}`);
+        if (!to && from < minFrom)
+            throw new Error(`The maximum time range is ${this.maxTimeRange} seconds, your is: ${minFrom}`);
 
-        const response = await super.fetchInvoices({accountId, from, to});
+        const response = await super.fetchInvoices({ token, accountId, from, to });
         return fetchInvoicesSchema.parse(response) as MonoResponse<Invoice[]>;
     }
 
     /**
-     * Fetches the invoices from your account or from the cache. 
-     * If the cache is full, it will be returned. 
+     * Fetches the invoices from your account or from the cache.
+     * If the cache is full, it will be returned.
      * If the cache is not full, it will be filled on the next function call and returned.
      * @param {string} accountId - The account id.
      * @param {number} from - The start time in seconds.
@@ -68,7 +69,7 @@ export class Monobank extends Mono {
             if (cachedInvoices.full) {
                 return {
                     data: cachedInvoices.data,
-                }
+                };
             }
             if (this.lastInvoiceFetch + this.invoiceFetchCouldown < Date.now()) {
                 const lastInvoice = cachedInvoices.data[cachedInvoices.data.length - 1];
@@ -77,18 +78,24 @@ export class Monobank extends Mono {
             }
             return {
                 data: cachedInvoices.data,
-                waitForNextPortion: (this.lastInvoiceFetch + this.invoiceFetchCouldown) - Date.now() / 1000,
+                waitForNextPortion: this.lastInvoiceFetch + this.invoiceFetchCouldown - Date.now() / 1000,
             };
         }
         return this.getInvoices(accountId, from, to);
     }
 
-    private async getInvoices (accountId: string, from: number, to?: number, prevInvoices: Invoice[] = [], cacheKey?: string): Promise<InvoiceAutoResponse> {
-        const data = await this.fetchInvoices({accountId, from, to});
+    private async getInvoices(
+        accountId: string,
+        from: number,
+        to?: number,
+        prevInvoices: Invoice[] = [],
+        cacheKey?: string
+    ): Promise<InvoiceAutoResponse> {
+        const data = await this.fetchInvoices({ accountId, from, to });
         if ('errorDescription' in data) {
             this.lastInvoiceFetch = Date.now();
             return this.getInvoicesAutoload(accountId, from, to);
-        };
+        }
         const invoices = [...prevInvoices, ...data];
         const isLimit = data.length === this.maxInvoices;
         if (cacheKey) {
@@ -96,7 +103,7 @@ export class Monobank extends Mono {
         }
         return {
             data: invoices,
-            ...{waitForNextPortion: isLimit ? (this.lastInvoiceFetch + 60 * 1000) - Date.now() / 1000 : undefined},
+            ...{ waitForNextPortion: isLimit ? this.lastInvoiceFetch + 60 * 1000 - Date.now() / 1000 : undefined },
         };
     }
 
