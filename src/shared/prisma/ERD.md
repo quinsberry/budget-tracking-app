@@ -34,6 +34,7 @@ erDiagram
 	}
 	Card {
 		String id PK  "dbgenerated(gen_random_uuid())"
+		String originalId  "nullable"
 		String description  "nullable"
 		String cardNumber
 		DateTime createdAt  "now()"

@@ -56,24 +56,27 @@ enum AvailableBank {
 }
 
 model Card {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  description     String?
-  cardNumber      String
-  transactions    Transaction[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  bank            AvailableBank
-  monobankDetails MonobankDetails?
-  pkoDetails      PKODetails?
-  userId          String           @db.Uuid
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  originalId        String?
+  description       String?
+  cardNumber        String
+  startTrackingTime DateTime
+  transactions      Transaction[]
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  bank              AvailableBank
+  monobankDetails   MonobankDetails?
+  pkoDetails        PKODetails?
+  userId            String           @db.Uuid
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MonobankDetails {
-  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  token  String
-  cardId String @unique @db.Uuid
-  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  token        String
+  isTokenValid Boolean @default(true)
+  cardId       String  @unique @db.Uuid
+  card         Card    @relation(fields: [cardId], references: [id], onDelete: Cascade)
 }
 
 model PKODetails {
@@ -85,23 +88,22 @@ model PKODetails {
 
 model Transaction {
   id                  String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  originalId          String
+  originalId          String                         @unique
   description         String?
   originalDescription String?
   tags                TransactionTagsOfTransaction[]
-  amount              Decimal
+  amount              Decimal                        @db.Decimal(9, 2)
   currencyCode        Int
-  createdAt           DateTime                       @default(now())
+  createdAt           DateTime
   cardId              String                         @db.Uuid
   card                Card                           @relation(fields: [cardId], references: [id], onDelete: Cascade)
 }
 
 model TransactionTag {
   id           Int                            @id @default(autoincrement())
-  name         String
+  name         String                         @unique
   transactions TransactionTagsOfTransaction[]
   createdAt    DateTime                       @default(now())
-  updatedAt    DateTime                       @updatedAt
 }
 
 model TransactionTagsOfTransaction {

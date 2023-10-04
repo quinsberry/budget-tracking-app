@@ -50,6 +50,10 @@ export class Monobank extends Mono {
         return fetchInvoicesSchema.parse(response) as MonoResponse<Invoice[]>;
     }
 
+    static isTokenError(error: string): boolean {
+        return error === "Unknown 'X-Token'";
+    }
+
     /**
      * Fetches the invoices from your account or from the cache.
      * If the cache is full, it will be returned.

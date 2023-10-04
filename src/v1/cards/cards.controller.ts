@@ -32,10 +32,10 @@ export class CardsController {
         return this.cardsService.findAllByUserId(id);
     }
 
-    @Get(':id')
+    @Get(':cardId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    async findOne(@Param('id') cardId: string) {
+    async findOne(@Param('cardId') cardId: string) {
         if (cardId.length > 36) throw new BadRequestException('Card ID length is greater than 36 symbols');
         const card = await this.cardsService.findOne(cardId);
         if (!card) throw new NotFoundException('Card is not found');
