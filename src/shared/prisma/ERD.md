@@ -37,6 +37,7 @@ erDiagram
 		String originalId  "nullable"
 		String description  "nullable"
 		String cardNumber
+		DateTime startTrackingTime
 		DateTime createdAt  "now()"
 		DateTime updatedAt
 		AvailableBank bank
@@ -45,6 +46,7 @@ erDiagram
 	MonobankDetails {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String token
+		Boolean isTokenValid  "undefined(undefined)"
 		String cardId FK
 	}
 	PKODetails {
@@ -59,14 +61,13 @@ erDiagram
 		String originalDescription  "nullable"
 		Decimal amount
 		Int currencyCode
-		DateTime createdAt  "now()"
+		DateTime createdAt
 		String cardId FK
 	}
 	TransactionTag {
 		Int id PK  "autoincrement()"
 		String name
 		DateTime createdAt  "now()"
-		DateTime updatedAt
 	}
 	TransactionTagsOfTransaction {
 		String transactionId FK
