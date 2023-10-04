@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CardsService } from '../cards/cards.service';
 import { UserId } from '../../shared/decorators/user-id.decorator';
@@ -52,6 +52,7 @@ export class TransactionsController {
     @Patch(':transactionId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
+    @ApiBody({ type: UpdateTransactionDto })
     async update(
         @Param('transactionId') transactionId: string,
         @UserId() userId: string,

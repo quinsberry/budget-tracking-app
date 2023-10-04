@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    UseGuards,
+    BadRequestException,
+    NotFoundException,
+} from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CreateMonobankCardDto } from './dto/create-monobank-card.dto';
 import { UpdateMonobankCardDto } from './dto/update-monobank-card.dto';
@@ -6,11 +17,17 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserId } from '../../shared/decorators/user-id.decorator';
 import { AvailableBank } from '@prisma/client';
 import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { UsersService } from '../users/users.service';
+import { MonobankService } from '../../shared/services/monobank.service';
 
 @Controller()
 @ApiTags('cards')
 export class CardsController {
-    constructor(private readonly cardsService: CardsService) {}
+    constructor(
+        private readonly cardsService: CardsService,
+        private readonly usersService: UsersService,
+        private readonly monobankService: MonobankService
+    ) {}
 
     @Post('/monobank')
     @UseGuards(JwtAuthGuard)
@@ -45,14 +62,22 @@ export class CardsController {
     @Patch(':cardId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    update(@UserId() userId: string, @Param('cardId') cardId: string, @Body() dto: UpdateMonobankCardDto) {
+    async update(@UserId() userId: string, @Param('cardId') cardId: string, @Body() dto: UpdateMonobankCardDto) {
+        const user = await this.usersService.findById(userId);
+        if (!user) throw new NotFoundException('User is not found');
+        const card = user.cards.find(card => card.id === cardId);
+        if (!card) throw new NotFoundException('Card is not found');
         return this.cardsService.update(userId, cardId, dto);
     }
 
     @Delete(':cardId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    remove(@UserId() userId: string, @Param('cardId') cardId: string,) {
+    async remove(@UserId() userId: string, @Param('cardId') cardId: string) {
+        const user = await this.usersService.findById(userId);
+        if (!user) throw new NotFoundException('User is not found');
+        const card = user.cards.find(card => card.id === cardId);
+        if (!card) throw new NotFoundException('Card is not found');
         return this.cardsService.remove(userId, cardId);
     }
 }

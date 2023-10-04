@@ -4,7 +4,6 @@ import { UpdateMonobankCardDto } from './dto/update-monobank-card.dto';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { AvailableBank } from '@prisma/client';
 import { MonobankService } from '../../shared/services/monobank.service';
-import { UsersService } from '../users/users.service';
 import { exclude } from '../../shared/prisma/utils/exclude';
 import { fromSecondsToDate } from '../../shared/utils/date';
 
@@ -13,7 +12,6 @@ export class CardsService {
     constructor(
         private prisma: PrismaService,
         private monobankService: MonobankService,
-        private usersService: UsersService
     ) {}
 
     async createMonobankCard(userId: string, dto: CreateMonobankCardDto) {
@@ -73,16 +71,10 @@ export class CardsService {
     }
 
     async update(userId: string, cardId: string, dto: UpdateMonobankCardDto) {
-        const user = await this.usersService.findById(userId);
-        if (!user) throw new NotFoundException('User is not found');
-        const card = user.cards.find(card => card.id === cardId);
-        if (!card) throw new NotFoundException('Card is not found');
-
         if (dto.token) {
             const clientInfo = await this.monobankService.fetchClientInfo({ token: dto.token });
             if ('errorDescription' in clientInfo) throw new BadRequestException('Token is not valid');
         }
-
         return this.prisma.card.update({
             where: {
                 id: cardId,
@@ -103,11 +95,6 @@ export class CardsService {
     }
 
     async remove(userId: string, cardId: string) {
-        const user = await this.usersService.findById(userId);
-        if (!user) throw new NotFoundException('User is not found');
-        const card = user.cards.find(card => card.id === cardId);
-        if (!card) throw new NotFoundException('Card is not found');
-
         return this.prisma.card.delete({
             where: {
                 id: cardId,

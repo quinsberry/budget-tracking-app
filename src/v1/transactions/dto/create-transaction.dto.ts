@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TransactionTagsOfTransaction } from '@prisma/client';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'nestjs-zod/z';
 
@@ -52,6 +51,7 @@ export class CreateTransactionDto extends createZodDto(CreateTransactionSchema) 
 
     @ApiProperty({
         default: '1910230291',
+        description: 'Time in seconds',
     })
     createdAt: Date;
 }
