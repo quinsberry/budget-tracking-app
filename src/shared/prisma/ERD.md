@@ -13,71 +13,71 @@ erDiagram
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String email
 		String password  "nullable"
-		String fullName
-		DateTime createdAt  "now()"
-		DateTime updatedAt
+		String full_name
+		DateTime created_at  "now()"
+		DateTime updated_at
 	}
 	UserSettings {
 		String id PK  "dbgenerated(gen_random_uuid())"
-		ColorScheme colorScheme "System"
-		String userId FK
-		String localeId FK  "nullable"
+		ColorScheme color_scheme "System"
+		String user_id
+		String locale_id  "nullable"
 	}
 	Locale {
 		String id
-		String languageCode
-		String countryCode  "nullable"
+		String language_code
+		String country_code  "nullable"
 		String script  "nullable"
-		String formalName
-		String nativeName
-		String commonName  "nullable"
+		String formal_name
+		String native_name
+		String common_name  "nullable"
 	}
 	Card {
 		String id PK  "dbgenerated(gen_random_uuid())"
-		String originalId  "nullable"
+		String original_id  "nullable"
 		String description  "nullable"
-		String cardNumber
-		DateTime startTrackingTime
-		DateTime createdAt  "now()"
-		DateTime updatedAt
+		String card_number
+		DateTime start_tracking_time
+		DateTime created_at  "now()"
+		DateTime updated_at
 		AvailableBank bank
-		String userId FK
+		String user_id
 	}
 	MonobankDetails {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String token
-		Boolean isTokenValid  "undefined(undefined)"
-		String cardId FK
+		Boolean is_token_valid  "undefined(undefined)"
+		String card_id
 	}
 	PKODetails {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String token
-		String cardId FK
+		String card_id
 	}
 	Transaction {
 		String id PK  "dbgenerated(gen_random_uuid())"
-		String originalId
+		String original_id
 		String description  "nullable"
-		String originalDescription  "nullable"
+		String original_description  "nullable"
 		Decimal amount
-		Int currencyCode
-		DateTime createdAt
-		String cardId FK
+		Int currency_code
+		DateTime created_at  "now()"
+		String card_id
 	}
 	TransactionTag {
 		Int id PK  "autoincrement()"
 		String name
-		DateTime createdAt  "now()"
+		DateTime created_at  "now()"
 	}
 	TransactionTagsOfTransaction {
-		String transactionId FK
-		Int tagId FK
-		DateTime createdAt  "now()"
+		String transaction_id
+		Int tag_id
+		DateTime created_at  "now()"
 	}
 	User }|--|{ UserSettings : settings
 	UserSettings }|--|{ User : user
 	UserSettings }o--|| Locale : locale
-	UserSettings }o--|| ColorScheme : "enum:colorScheme"
+	UserSettings }o--|| ColorScheme : "enum:color_scheme"
 	Card }|--|{ MonobankDetails : monobankDetails
 	Card }|--|{ PKODetails : pkoDetails
 	Card }o--|| User : user
