@@ -8,6 +8,7 @@ import {
     NotFoundException,
     ForbiddenException,
     Query,
+    ParseUUIDPipe,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
@@ -29,7 +30,7 @@ export class TransactionsController {
     @ApiBearerAuth()
     async findAll(
         @UserId() userId: string,
-        @Param('cardId') cardId: string,
+        @Param('cardId', ParseUUIDPipe) cardId: string,
         @Query('take') take: string,
         @Query('skip') skip: string
     ) {
@@ -42,7 +43,7 @@ export class TransactionsController {
     @Get(':transactionId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    async findOne(@Param('transactionId') transactionId: string, @UserId() userId: string) {
+    async findOne(@Param('transactionId', ParseUUIDPipe) transactionId: string, @UserId() userId: string) {
         const transaction = await this.transactionsService.findOneById(transactionId);
         if (!transaction) throw new NotFoundException('Transaction is not found');
         if (transaction.card.userId !== userId) throw new NotFoundException('Transaction is not found');
@@ -54,7 +55,7 @@ export class TransactionsController {
     @ApiBearerAuth()
     @ApiBody({ type: UpdateTransactionDto })
     async update(
-        @Param('transactionId') transactionId: string,
+        @Param('transactionId', ParseUUIDPipe) transactionId: string,
         @UserId() userId: string,
         @Body() updateTransactionDto: UpdateTransactionDto
     ) {

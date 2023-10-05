@@ -9,6 +9,7 @@ import {
     UseGuards,
     BadRequestException,
     NotFoundException,
+    ParseUUIDPipe,
 } from '@nestjs/common';
 import { CardsService } from './cards.service';
 import { CreateMonobankCardDto } from './dto/create-monobank-card.dto';
@@ -52,7 +53,7 @@ export class CardsController {
     @Get(':cardId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    async findOne(@Param('cardId') cardId: string) {
+    async findOne(@Param('cardId', ParseUUIDPipe) cardId: string) {
         if (cardId.length > 36) throw new BadRequestException('Card ID length is greater than 36 symbols');
         const card = await this.cardsService.findOne(cardId);
         if (!card) throw new NotFoundException('Card is not found');
@@ -62,7 +63,7 @@ export class CardsController {
     @Patch(':cardId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    async update(@UserId() userId: string, @Param('cardId') cardId: string, @Body() dto: UpdateMonobankCardDto) {
+    async update(@UserId() userId: string, @Param('cardId', ParseUUIDPipe) cardId: string, @Body() dto: UpdateMonobankCardDto) {
         const user = await this.usersService.findById(userId);
         if (!user) throw new NotFoundException('User is not found');
         const card = user.cards.find(card => card.id === cardId);
@@ -73,7 +74,7 @@ export class CardsController {
     @Delete(':cardId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    async remove(@UserId() userId: string, @Param('cardId') cardId: string) {
+    async remove(@UserId() userId: string, @Param('cardId', ParseUUIDPipe) cardId: string) {
         const user = await this.usersService.findById(userId);
         if (!user) throw new NotFoundException('User is not found');
         const card = user.cards.find(card => card.id === cardId);
