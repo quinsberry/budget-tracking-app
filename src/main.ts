@@ -20,6 +20,9 @@ async function bootstrap() {
     const configService = app.get(ConfigService);
     const config = configService.get<AppConfiguration>('app');
 
+
+    app.setGlobalPrefix(config.globalPrefix);
+
     // enable shutdown hook
     app.enableShutdownHooks();
 

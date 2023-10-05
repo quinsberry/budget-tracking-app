@@ -2,6 +2,7 @@ export const configuration = () => ({
     app: {
         NODE_ENV: process.env.NODE_ENV,
         port: process.env.PORT,
+        globalPrefix: 'api',
         cors: {
             enabled: true,
         },
@@ -14,7 +15,7 @@ export const configuration = () => ({
             title: 'Budget Tracking App',
             description: 'Budget Tracking App API',
             version: '1.0',
-            path: 'api',
+            path: 'docs',
         },
         db: {
             host: process.env.DB_HOST,
