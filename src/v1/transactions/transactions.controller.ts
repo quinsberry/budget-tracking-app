@@ -25,7 +25,7 @@ export class TransactionsController {
         private readonly cardsService: CardsService
     ) {}
 
-    @Get(':cardId?')
+    @Get('card/:cardId?')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
     async findAll(
