@@ -19,7 +19,6 @@ import { UserId } from '../../shared/decorators/user-id.decorator';
 import { AvailableBank } from '@prisma/client';
 import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from '../users/users.service';
-import { MonobankService } from '../../shared/services/monobank.service';
 
 @Controller()
 @ApiTags('cards')
@@ -27,7 +26,6 @@ export class CardsController {
     constructor(
         private readonly cardsService: CardsService,
         private readonly usersService: UsersService,
-        private readonly monobankService: MonobankService
     ) {}
 
     @Post('/monobank')

@@ -6,7 +6,7 @@ const CreateMonobankCardSchema = z.object({
     description: z.string().optional(),
     cardNumber: z.string().length(16),
     token: z.string(),
-    startTrackingTime: z.number(),
+    startTrackingTime: z.string(),
 });
 
 export class CreateMonobankCardDto extends createZodDto(CreateMonobankCardSchema) {
@@ -22,9 +22,9 @@ export class CreateMonobankCardDto extends createZodDto(CreateMonobankCardSchema
 
     @ApiProperty({
         default: 1696444881,
-        description: 'Time in seconds',
+        description: "ISO format, e.g. '023-10-06T17:42:55.527Z'",
     })
-    startTrackingTime: number;
+    startTrackingTime: string;
 
     @ApiProperty({
         default: '12dahwd7awb2hjxbnaA!a8sdajn2',

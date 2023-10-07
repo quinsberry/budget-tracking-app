@@ -15,12 +15,12 @@ interface Response {
 }
 
 export class Monobank extends Mono {
-    private readonly maxTimeRange = 2682000;
-    private readonly maxInvoices = 500;
+    readonly maxTimeRange = 2682000;
+    readonly maxInvoices = 500;
 
-    private readonly invoiceCache = new Map<string, { full: boolean; data: Invoice[] }>();
-    private lastInvoiceFetch = 0;
-    private invoiceFetchCouldown = 5000;
+    protected readonly invoiceCache = new Map<string, { full: boolean; data: Invoice[] }>();
+    protected lastInvoiceFetch = 0;
+    protected invoiceFetchCouldown = 5000;
 
     async fetchClientInfo({ token }: { token?: string }): Promise<MonoResponse<ClientInfo>> {
         if (token ? false : this.token ? false : true) throw new Error('This operation requires a token');

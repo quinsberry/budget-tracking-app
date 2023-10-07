@@ -5,8 +5,8 @@ import { MonobankService } from '../../shared/services/monobank.service';
 import { UsersService } from '../users/users.service';
 
 @Module({
-  controllers: [CardsController],
-  providers: [CardsService, MonobankService, UsersService],
-  exports: [CardsService],
+    controllers: [CardsController],
+    providers: [CardsService, MonobankService, UsersService],
+    exports: [CardsService],
 })
 export class CardsModule {}

@@ -5,13 +5,14 @@ import { PrismaService } from '../../shared/prisma/prisma.service';
 import { AvailableBank } from '@prisma/client';
 import { MonobankService } from '../../shared/services/monobank.service';
 import { exclude } from '../../shared/prisma/utils/exclude';
-import { fromSecondsToDate } from '../../shared/utils/date';
+import { TransactionsService } from '../transactions/transactions.service';
 
 @Injectable()
 export class CardsService {
     constructor(
         private prisma: PrismaService,
         private monobankService: MonobankService,
+        // private transactionService: TransactionsService,
     ) {}
 
     async createMonobankCard(userId: string, dto: CreateMonobankCardDto) {
@@ -21,22 +22,22 @@ export class CardsService {
             account.maskedPan.find(cardNumber => this.monobankService.areCardNumbersMatches(cardNumber, dto.cardNumber))
         );
         if (!foundTheCard) throw new BadRequestException('Card number is not valid');
-        const card = await this.prisma.card.findUnique({
+        const existingCard = await this.prisma.card.findUnique({
             where: {
                 cardNumber: dto.cardNumber,
                 id: userId,
             },
         });
-        if (card !== null) throw new BadRequestException('Card is already exists');
+        if (existingCard !== null) throw new BadRequestException('Card is already exists');
 
-        return this.prisma.card.create({
+        const card = await this.prisma.card.create({
             data: {
                 userId,
                 originalId: foundTheCard.id,
                 description: dto.description,
                 bank: AvailableBank.Monobank,
                 cardNumber: dto.cardNumber,
-                startTrackingTime: fromSecondsToDate(dto.startTrackingTime),
+                startTrackingTime: dto.startTrackingTime,
                 monobankDetails: {
                     create: {
                         token: dto.token,
@@ -44,6 +45,8 @@ export class CardsService {
                 },
             },
         });
+        // this.transactionService.seedMonobankTransactions(card.id, card.startTrackingTime);
+        return card;
     }
 
     findAllByUserId(userId: string) {
@@ -62,6 +65,7 @@ export class CardsService {
             include: {
                 monobankDetails: true,
                 user: true,
+                pkoDetails: true,
             },
         });
         return {
@@ -84,7 +88,7 @@ export class CardsService {
                 description: dto.description,
                 cardNumber: dto.cardNumber,
                 // TODO: if startTrackingTime changed - need to fetch older transactions from monobank or remove them
-                startTrackingTime: fromSecondsToDate(dto.startTrackingTime),
+                startTrackingTime: dto.startTrackingTime,
                 monobankDetails: {
                     update: {
                         ...(dto.token ? { token: dto.token } : {}),
