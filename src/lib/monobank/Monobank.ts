@@ -15,7 +15,7 @@ interface Response {
 }
 
 export class Monobank extends Mono {
-    readonly maxTimeRange = 2682000;
+    readonly maxTimeRange = 2682000; // seconds
     readonly maxInvoices = 500;
     readonly maxRequestsPerMinute = 1;
 

@@ -48,22 +48,13 @@ export class MonobankService {
             interval: minuteInMs / this.monobank.maxRequestsPerMinute,
             start: false,
         });
-        dateSlices.map(({ from, to }, idx) => {
-            queue.enqueue(async () => {
-                this.logger.debug(
-                    `[${idx + 1}] ${fromSecondsToDate(from).toDateString()} - ${fromSecondsToDate(to).toDateString()}`
-                );
-                const invoices = await this.fetchFullInvoices({ token, accountId, from, to });
-                if ('errorDescription' in invoices) {
-                    this.logger.error(`[${idx + 1}] Error: ${invoices.errorDescription}`);
-                    throw new Error(invoices.errorDescription);
-                }
-                this.logger.debug(`[${idx + 1}] Completed`);
-                if (idx === dateSlices.length - 1) queue.stop();
-                return invoices;
-            });
-        });
+        dateSlices.forEach(({ from, to }, idx) =>
+            this.fetchFullInvoices({ idx, token, accountId, from, to, enqueue: (args) => queue.enqueue(args) })
+        );
         queue.on('resolve', data => onPartUploaded?.(data));
+        queue.on('reject', error => {
+            throw new Error(error);
+        });
         queue.on('end', () => this.logger.debug(`Fetching invoices for ${dateInterval} completed`));
         queue.start();
     }
@@ -86,33 +77,50 @@ export class MonobankService {
         return result;
     }
 
-    private async fetchFullInvoices({
+    private fetchFullInvoices({
         token,
         accountId,
         from,
         to,
+        enqueue,
+        idx,
+        loop = 0,
     }: {
         token?: string;
         accountId: string;
         from: number;
         to?: number;
-    }): Promise<MonoResponse<Invoice[]>> {
-        const result: Invoice[] = [];
-        const invoices = await this.monobank.fetchInvoices({ token, accountId, from, to });
-        if ('errorDescription' in invoices) {
+        idx?: number;
+        loop?: number;
+        enqueue: (tasks: () => Promise<any> | Array<() => Promise<any>>) => void;
+    }): void {
+        enqueue(async () => {
+            if (loop === 0) {
+                this.logger.debug(
+                    `[${idx + 1}] ${fromSecondsToDate(from).toDateString()} - ${fromSecondsToDate(to).toDateString()}`
+                );
+            }
+            const invoices = await this.monobank.fetchInvoices({ token, accountId, from, to });
+            if ('errorDescription' in invoices) {
+                return invoices;
+            }
+            if (invoices.length === this.monobank.maxInvoices) {
+                const lastInvoiceTime = invoices[invoices.length - 1].time;
+                this.logger.debug(
+                    `[${idx + 1}] ${loop === 0 ? 'First' : loop + 1} part of invoices fetched. Fetching next part`
+                );
+                return this.fetchFullInvoices({
+                    token,
+                    accountId,
+                    from: lastInvoiceTime,
+                    to,
+                    enqueue,
+                    loop: loop + 1,
+                });
+            }
+            this.logger.debug(`[${idx + 1}] Completed`);
             return invoices;
-        }
-        result.push(...invoices);
-        if (invoices.length === 500) {
-            const lastInvoiceTime = invoices[invoices.length - 1].time;
-            return this.fetchFullInvoices({
-                token,
-                accountId,
-                from: lastInvoiceTime,
-                to,
-            });
-        }
-        return result;
+        });
     }
 
     areCardNumbersMatches(card1: string, card2: string): boolean {
