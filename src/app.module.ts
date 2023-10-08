@@ -9,6 +9,7 @@ import { envSchema } from './shared/config/validation';
 import { PrismaModule } from './shared/prisma/prisma.module';
 import { loggingMiddleware } from './shared/prisma/utils/LoggingMiddleware';
 import { SharedModule } from './shared/Shared.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 
 const envFileName = process.env.NODE_ENV === 'production' ? '.env.prod' : `.env`;
@@ -32,6 +33,7 @@ const envFilePath = join(process.cwd(), envFileName);
             ],
         },
     }),
+    ScheduleModule.forRoot(),
     RouterModule.register(versionRoutes),
     SharedModule,
     V1Module,

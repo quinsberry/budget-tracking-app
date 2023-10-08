@@ -7,6 +7,7 @@ import { CardsService } from '../cards/cards.service';
 import { Decimal } from '@prisma/client/runtime/library';
 import { AvailableBank } from '@prisma/client';
 import { fromSecondsToDate } from '../../shared/utils/date';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class TransactionsService {
@@ -42,7 +43,7 @@ export class TransactionsService {
         return Promise.all(invoices.map(invoice => this.createOne(invoice)));
     }
 
-    async seedMonobankTransactions(cardId: string, from: Date): Promise<void> {
+    async seedTransactions(cardId: string, from: Date): Promise<void> {
         const card = await this.cardsService.findOne(cardId);
         if (card.bank === AvailableBank.Monobank) {
             return this.monobankService.fetchInvoices({
@@ -60,10 +61,20 @@ export class TransactionsService {
                             createdAt: fromSecondsToDate(invoice.time),
                         }))
                     );
-                }
+                },
             });
         } else {
             throw new NotFoundException('Functionality for your bank was not implemented yet');
+        }
+    }
+
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { name: 'dailyTransactionsSeeding' })
+    async dailyTransactionsSeeding(): Promise<void> {
+        const cards = await this.cardsService.findAll();
+        const monthAgo = new Date();
+        monthAgo.setDate(monthAgo.getDate() - 30);
+        for (const card of cards) {
+            this.seedTransactions(card.id, monthAgo);
         }
     }
 
