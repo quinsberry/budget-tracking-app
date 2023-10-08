@@ -2,6 +2,7 @@ export const configuration = () => ({
     app: {
         NODE_ENV: process.env.NODE_ENV,
         port: process.env.PORT,
+        hostname: process.env.HOSTNAME || undefined,
         globalPrefix: 'api',
         cors: {
             enabled: true,

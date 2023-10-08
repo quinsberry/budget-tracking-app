@@ -3,6 +3,7 @@ import z from 'zod';
 export const envSchema = z.object({
     NODE_ENV: z.union([z.literal('development'), z.literal('production')]),
 
+    HOSTNAME: z.string().optional(),
     PORT: z.string(),
 
     DB_HOST: z.string(),

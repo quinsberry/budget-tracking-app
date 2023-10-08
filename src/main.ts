@@ -52,6 +52,10 @@ async function bootstrap() {
         app.enableCors({ credentials: true, origin: true });
     }
     
-    await app.listen(config.port);
+    await app.listen(config.port, config.hostname);
+    if (config.NODE_ENV !== 'production') {
+        console.info(`Documentation: http://${config.hostname}:${config.port}/${config.swagger.path}`);
+        console.info(`Listening on http://${config.hostname}:${config.port}/${config.globalPrefix}`);
+    }
 }
 bootstrap();
