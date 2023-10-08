@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { TransactionsController } from './transactions.controller';
-import { CardsService } from '../cards/cards.service';
-import { UsersService } from '../users/users.service';
+import { CardsService } from '@/v1/cards/cards.service';
+import { UsersService } from '@/v1/users/users.service';
 
 @Module({
     controllers: [TransactionsController],

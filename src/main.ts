@@ -1,10 +1,10 @@
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from '@/app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppConfiguration } from './shared/config/configuration';
+import { AppConfiguration } from '@/shared/config/configuration';
 import { LogLevel } from '@nestjs/common';
-import { PrismaClientExceptionFilter } from './shared/prisma/utils/PrismaClientExceptionFilter';
+import { PrismaClientExceptionFilter } from '@/shared/prisma/utils/PrismaClientExceptionFilter';
 
 async function bootstrap() {
 	const prodLogLevels: LogLevel[] = ['log', 'error', 'warn'];

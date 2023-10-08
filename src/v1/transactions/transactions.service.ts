@@ -1,13 +1,13 @@
 import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { PrismaService } from '../../shared/prisma/prisma.service';
-import { MonobankService } from '../../shared/services/monobank.service';
-import { CardsService } from '../cards/cards.service';
+import { PrismaService } from '@/shared/prisma/prisma.service';
+import { MonobankService } from '@/shared/services/monobank.service';
 import { Decimal } from '@prisma/client/runtime/library';
 import { AvailableBank } from '@prisma/client';
-import { fromSecondsToDate } from '../../shared/utils/date';
+import { fromSecondsToDate } from '@/shared/utils/date';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { CardsService } from '@/v1/cards/cards.service';
 
 @Injectable()
 export class TransactionsService {

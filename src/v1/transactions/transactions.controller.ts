@@ -13,9 +13,9 @@ import {
 import { TransactionsService } from './transactions.service';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { ApiBearerAuth, ApiTags, ApiBody } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CardsService } from '../cards/cards.service';
-import { UserId } from '../../shared/decorators/user-id.decorator';
+import { UserId } from '@/shared/decorators/user-id.decorator';
+import { CardsService } from '@/v1/cards/cards.service';
+import { JwtAuthGuard } from '@/v1/auth/guards/jwt-auth.guard';
 
 @Controller()
 @ApiTags('transactions')

@@ -14,11 +14,11 @@ import {
 import { CardsService } from './cards.service';
 import { CreateMonobankCardDto } from './dto/create-monobank-card.dto';
 import { UpdateMonobankCardDto } from './dto/update-monobank-card.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { UserId } from '../../shared/decorators/user-id.decorator';
+import { UserId } from '@/shared/decorators/user-id.decorator';
 import { AvailableBank } from '@prisma/client';
 import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
-import { UsersService } from '../users/users.service';
+import { JwtAuthGuard } from '@/v1/auth/guards/jwt-auth.guard';
+import { UsersService } from '@/v1/users/users.service';
 
 @Controller()
 @ApiTags('cards')
