@@ -5,7 +5,6 @@ import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PasswordService } from '../../shared/services/password.service';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AppConfiguration } from '../../shared/config/configuration';
@@ -26,7 +25,7 @@ import { AppConfiguration } from '../../shared/config/configuration';
         UsersModule,
         PassportModule,
     ],
-    providers: [AuthService, PasswordService, LocalStrategy, JwtStrategy],
+    providers: [AuthService, LocalStrategy, JwtStrategy],
     controllers: [AuthController],
 })
 export class AuthModule {}

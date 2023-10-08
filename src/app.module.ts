@@ -8,6 +8,7 @@ import { configuration } from './shared/config/configuration';
 import { envSchema } from './shared/config/validation';
 import { PrismaModule } from './shared/prisma/prisma.module';
 import { loggingMiddleware } from './shared/prisma/utils/LoggingMiddleware';
+import { SharedModule } from './shared/Shared.module';
 
 
 const envFileName = process.env.NODE_ENV === 'production' ? '.env.prod' : `.env`;
@@ -32,6 +33,7 @@ const envFilePath = join(process.cwd(), envFileName);
         },
     }),
     RouterModule.register(versionRoutes),
+    SharedModule,
     V1Module,
   ],
   providers: [],

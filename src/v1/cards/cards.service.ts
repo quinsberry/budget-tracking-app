@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { CreateMonobankCardDto } from './dto/create-monobank-card.dto';
 import { UpdateMonobankCardDto } from './dto/update-monobank-card.dto';
 import { PrismaService } from '../../shared/prisma/prisma.service';
@@ -12,7 +12,8 @@ export class CardsService {
     constructor(
         private prisma: PrismaService,
         private monobankService: MonobankService,
-        // private transactionService: TransactionsService,
+        @Inject(forwardRef(() => TransactionsService))
+        private transactionService: TransactionsService,
     ) {}
 
     async createMonobankCard(userId: string, dto: CreateMonobankCardDto) {
@@ -45,7 +46,7 @@ export class CardsService {
                 },
             },
         });
-        // this.transactionService.seedMonobankTransactions(card.id, card.startTrackingTime);
+        this.transactionService.seedMonobankTransactions(card.id, card.startTrackingTime);
         return card;
     }
 
