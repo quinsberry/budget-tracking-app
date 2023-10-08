@@ -17,6 +17,7 @@ interface Response {
 export class Monobank extends Mono {
     readonly maxTimeRange = 2682000;
     readonly maxInvoices = 500;
+    readonly maxRequestsPerMinute = 1;
 
     protected readonly invoiceCache = new Map<string, { full: boolean; data: Invoice[] }>();
     protected lastInvoiceFetch = 0;

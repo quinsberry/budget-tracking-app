@@ -3,6 +3,7 @@ import { Invoice } from '@/lib/monobank/types';
 import { Monobank } from '../../lib/monobank';
 import { Injectable, Logger } from '@nestjs/common';
 import { fromDateToSeconds, fromSecondsToDate } from '../utils/date';
+import { Queue } from '../../lib/queue';
 
 @Injectable()
 export class MonobankService {
@@ -36,24 +37,35 @@ export class MonobankService {
         onPartUploaded?: (invoices: Invoice[]) => void;
     }): Promise<void> {
         const dateSlices = this.makeSlicesForRequests(from, to);
-        this.logger.log(`from: ${from.toDateString()}, to: ${to.toDateString()}`);
-        this.logger.log(`Fetching ${dateSlices.length} parts of invoices`);
-        return new Promise((resolve, reject) => {
-            dateSlices.map(({ from, to }, idx) => {
-                setTimeout(async () => {
-                    this.logger.log(`Fetching ${fromSecondsToDate(from).toDateString()} - ${fromSecondsToDate(to).toDateString()}`);
-                    const invoices = await this.fetchFullInvoices({ token, accountId, from, to });
-                    if ('errorDescription' in invoices) {
-                        reject(invoices.errorDescription);
-                        this.logger.log(`Error ${invoices.errorDescription}`);
-                        throw new Error(invoices.errorDescription);
-                    }
-                    onPartUploaded?.(invoices);
-                    this.logger.log(`Fetched ${fromSecondsToDate(from).toDateString()} - ${fromSecondsToDate(to).toDateString()}`);
-                    if (idx === dateSlices.length - 1) resolve();
-                }, idx * 5000);
-            })
+        const dateInterval = `${from.toDateString()} - ${to.toDateString()}`;
+
+        this.logger.debug(`Date interval: ${dateInterval}`);
+        this.logger.debug(`Fetching ${dateSlices.length} parts of invoices:`);
+
+        const minuteInMs = 60000;
+        const queue = new Queue({
+            concurrent: 1,
+            interval: minuteInMs / this.monobank.maxRequestsPerMinute,
+            start: false,
         });
+        dateSlices.map(({ from, to }, idx) => {
+            queue.enqueue(async () => {
+                this.logger.debug(
+                    `[${idx + 1}] ${fromSecondsToDate(from).toDateString()} - ${fromSecondsToDate(to).toDateString()}`
+                );
+                const invoices = await this.fetchFullInvoices({ token, accountId, from, to });
+                if ('errorDescription' in invoices) {
+                    this.logger.error(`[${idx + 1}] Error: ${invoices.errorDescription}`);
+                    throw new Error(invoices.errorDescription);
+                }
+                this.logger.debug(`[${idx + 1}] Completed`);
+                if (idx === dateSlices.length - 1) queue.stop();
+                return invoices;
+            });
+        });
+        queue.on('resolve', data => onPartUploaded?.(data));
+        queue.on('end', () => this.logger.debug(`Fetching invoices for ${dateInterval} completed`));
+        queue.start();
     }
 
     private makeSlicesForRequests(from: Date, to: Date): { from: number; to: number }[] {

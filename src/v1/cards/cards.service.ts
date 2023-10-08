@@ -46,8 +46,18 @@ export class CardsService {
                 },
             },
         });
-        this.transactionService.seedMonobankTransactions(card.id, card.startTrackingTime);
+        this.transactionService.seedTransactions(card.id, card.startTrackingTime);
         return card;
+    }
+
+    findAll() {
+        return this.prisma.card.findMany({
+            include: {
+                monobankDetails: true,
+                user: true,
+                pkoDetails: true,
+            }
+        });
     }
 
     findAllByUserId(userId: string) {
