@@ -4,6 +4,7 @@ import { UsersModule } from '@/v1/users/users.module';
 import { AuthModule } from '@/v1/auth/auth.module';
 import { CardsModule } from '@/v1/cards/cards.module';
 import { TransactionsModule } from '@/v1/transactions/transactions.module';
+import { TagsModule } from './v1/tags/tags.module';
 
 export const versionRoutes: Routes = [
     {
@@ -14,6 +15,7 @@ export const versionRoutes: Routes = [
             { path: '/auth', module: AuthModule },
             { path: '/cards', module: CardsModule },
             { path: '/transactions', module: TransactionsModule },
+            { path: '/tags', module: TagsModule },
         ],
     },
 ];

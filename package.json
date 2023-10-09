@@ -76,7 +76,7 @@
   },
   "prisma": {
     "schema": "./src/shared/prisma/schema.prisma",
-    "seed": "ts-node src/shared/prisma/seeds/main.ts"
+    "seed": "ts-node -r tsconfig-paths/register src/shared/prisma/seeds/main.ts"
   },
   "jest": {
     "moduleFileExtensions": [

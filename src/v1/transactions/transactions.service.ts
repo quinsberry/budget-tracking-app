@@ -8,18 +8,21 @@ import { AvailableBank } from '@prisma/client';
 import { fromSecondsToDate } from '@/shared/utils/date';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CardsService } from '@/v1/cards/cards.service';
+import { parseDesctiptionIntoTags } from '@/lib/monobank/parser';
+import { TagsService } from '@/v1/tags/tags.service';
 
 @Injectable()
 export class TransactionsService {
     constructor(
         private prisma: PrismaService,
         private monobankService: MonobankService,
+        private tagsService: TagsService,
         @Inject(forwardRef(() => CardsService))
-        private cardsService: CardsService
+        private cardsService: CardsService,
     ) {}
 
-    createOne(dto: CreateTransactionDto) {
-        return this.prisma.transaction.upsert({
+    async createOne(dto: CreateTransactionDto) {
+        const transaction = await this.prisma.transaction.upsert({
             where: {
                 originalId: dto.originalId,
             },
@@ -32,11 +35,13 @@ export class TransactionsService {
                 amount: new Decimal(dto.amount / 100),
                 currencyCode: dto.currencyCode,
                 createdAt: dto.createdAt,
-                tags: {
-                    create: [],
-                },
             },
         });
+        this.tagsService.addTagsToTransaction(
+            dto.tags.map(name => ({ name })),
+            transaction.id
+        );
+        return transaction;
     }
 
     createMany(invoices: CreateTransactionDto[]) {
@@ -59,6 +64,7 @@ export class TransactionsService {
                             amount: invoice.amount,
                             currencyCode: invoice.currencyCode,
                             createdAt: fromSecondsToDate(invoice.time),
+                            tags: [parseDesctiptionIntoTags(invoice.description)],
                         }))
                     );
                 },
@@ -89,8 +95,8 @@ export class TransactionsService {
         });
     }
 
-    findAllByCardId(cardId: string, take: number = 100, skip: number = 0) {
-        return this.prisma.transaction.findMany({
+    async findAllByCardId(cardId: string, take: number = 100, skip: number = 0) {
+        const transactions = await this.prisma.transaction.findMany({
             where: {
                 cardId,
             },
@@ -100,9 +106,17 @@ export class TransactionsService {
                 createdAt: 'desc',
             },
             include: {
-                tags: true,
+                tags: {
+                    include: {
+                        tag: true,
+                    },
+                },
             },
         });
+        return transactions.map(transaction => ({
+            ...transaction,
+            tags: transaction.tags.map(({ tag }) => ({ id: tag.id, name: tag.name })),
+        }));
     }
 
     findOneById(transactionId: string) {
