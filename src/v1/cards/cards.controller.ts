@@ -1,32 +1,31 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    UseGuards,
     BadRequestException,
+    Body,
+    Controller,
+    Delete,
+    Get,
     NotFoundException,
+    Param,
     ParseUUIDPipe,
+    Patch,
+    Post,
+    UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { AvailableBank } from '@prisma/client';
+
+import { UserId } from '@/shared/decorators/user-id.decorator';
+import { JwtAuthGuard } from '@/v1/auth/guards/jwt-auth.guard';
+import { UsersService } from '@/v1/users/users.service';
+
 import { CardsService } from './cards.service';
 import { CreateMonobankCardDto } from './dto/create-monobank-card.dto';
 import { UpdateMonobankCardDto } from './dto/update-monobank-card.dto';
-import { UserId } from '@/shared/decorators/user-id.decorator';
-import { AvailableBank } from '@prisma/client';
-import { ApiTags, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from '@/v1/auth/guards/jwt-auth.guard';
-import { UsersService } from '@/v1/users/users.service';
 
 @Controller()
 @ApiTags('cards')
 export class CardsController {
-    constructor(
-        private readonly cardsService: CardsService,
-        private readonly usersService: UsersService,
-    ) {}
+    constructor(private readonly cardsService: CardsService, private readonly usersService: UsersService) {}
 
     @Post('/monobank')
     @UseGuards(JwtAuthGuard)
@@ -61,7 +60,11 @@ export class CardsController {
     @Patch(':cardId')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth()
-    async update(@UserId() userId: string, @Param('cardId', ParseUUIDPipe) cardId: string, @Body() dto: UpdateMonobankCardDto) {
+    async update(
+        @UserId() userId: string,
+        @Param('cardId', ParseUUIDPipe) cardId: string,
+        @Body() dto: UpdateMonobankCardDto
+    ) {
         const user = await this.usersService.findById(userId);
         if (!user) throw new NotFoundException('User is not found');
         const card = user.cards.find(card => card.id === cardId);

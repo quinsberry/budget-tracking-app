@@ -1,25 +1,25 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
-import { AppModule } from '@/app.module';
-import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppConfiguration } from '@/shared/config/configuration';
 import { LogLevel } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { AppModule } from '@/app.module';
+import { AppConfiguration } from '@/shared/config/configuration';
 import { PrismaClientExceptionFilter } from '@/shared/prisma/utils/PrismaClientExceptionFilter';
 
 async function bootstrap() {
-	const prodLogLevels: LogLevel[] = ['log', 'error', 'warn'];
-	const devLogLevels: LogLevel[] = ['log', 'error', 'warn', 'debug', 'verbose'];
-  
-	const logLevels = process.env.NODE_ENV === 'production' ? prodLogLevels : devLogLevels;
-  
-	const app = await NestFactory.create(AppModule, {
-		cors: false,
-		logger: logLevels,
-	});
+    const prodLogLevels: LogLevel[] = ['log', 'error', 'warn'];
+    const devLogLevels: LogLevel[] = ['log', 'error', 'warn', 'debug', 'verbose'];
+
+    const logLevels = process.env.NODE_ENV === 'production' ? prodLogLevels : devLogLevels;
+
+    const app = await NestFactory.create(AppModule, {
+        cors: false,
+        logger: logLevels,
+    });
 
     const configService = app.get(ConfigService);
     const config = configService.get<AppConfiguration>('app');
-
 
     app.setGlobalPrefix(config.globalPrefix);
 
@@ -51,7 +51,7 @@ async function bootstrap() {
     if (config.cors.enabled) {
         app.enableCors({ credentials: true, origin: true });
     }
-    
+
     await app.listen(config.port, config.hostname);
     if (config.NODE_ENV !== 'production') {
         console.info(`Documentation: http://${config.hostname}:${config.port}/${config.swagger.path}`);

@@ -1,6 +1,6 @@
+import { SuccessClientInfoResponse, SuccessInvoicesResponse } from './responses';
 import { Monobank } from '../Monobank';
 import { Invoice } from '../types';
-import { SuccessClientInfoResponse, SuccessInvoicesResponse } from './responses';
 
 export const getMockMonoInvoices = (amount: number): Invoice[] => {
     return new Array(amount).fill(0).map((_, i) => ({

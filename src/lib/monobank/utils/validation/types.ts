@@ -1,17 +1,20 @@
-import { z } from "zod";
-import { AccountType, CashbackType } from "../../types";
+import { z } from 'zod';
 
-export const AccountSchema = z.array(z.object({
-    id: z.string(),
-    sendId: z.string(),
-    currencyCode: z.number(),
-    balance: z.number(),
-    creditLimit: z.number(),
-    maskedPan: z.array(z.string()),
-    type: z.nativeEnum(AccountType),
-    iban: z.string(),
-    cashbackType: z.nativeEnum(CashbackType).optional(),
-}));
+import { AccountType, CashbackType } from '../../types';
+
+export const AccountSchema = z.array(
+    z.object({
+        id: z.string(),
+        sendId: z.string(),
+        currencyCode: z.number(),
+        balance: z.number(),
+        creditLimit: z.number(),
+        maskedPan: z.array(z.string()),
+        type: z.nativeEnum(AccountType),
+        iban: z.string(),
+        cashbackType: z.nativeEnum(CashbackType).optional(),
+    })
+);
 
 export const ClientInfoSchema = z.object({
     clientId: z.string(),

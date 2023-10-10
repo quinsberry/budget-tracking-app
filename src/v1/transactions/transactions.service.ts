@@ -1,15 +1,17 @@
 import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { AvailableBank, Prisma } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
+
+import { parseDesctiptionIntoTags } from '@/lib/monobank/parser';
 import { PrismaService } from '@/shared/prisma/prisma.service';
 import { MonobankService } from '@/shared/services/monobank.service';
-import { Decimal } from '@prisma/client/runtime/library';
-import { AvailableBank, Prisma } from '@prisma/client';
 import { fromSecondsToDate } from '@/shared/utils/date';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { CardsService } from '@/v1/cards/cards.service';
-import { parseDesctiptionIntoTags } from '@/lib/monobank/parser';
 import { TagsService } from '@/v1/tags/tags.service';
+
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -102,22 +104,25 @@ export class TransactionsService {
                 ...(cardId ? { id: cardId } : {}),
             },
         };
-        const result = await this.withCount(this.prisma.transaction.findMany({
-            where,
-            take,
-            skip,
-            orderBy: {
-                createdAt: 'desc',
-            },
-            include: {
-                tags: {
-                    include: {
-                        tag: true,
-                    },
+        const result = await this.withCount(
+            this.prisma.transaction.findMany({
+                where,
+                take,
+                skip,
+                orderBy: {
+                    createdAt: 'desc',
                 },
-                card: !cardId,
-            },
-        }), where);
+                include: {
+                    tags: {
+                        include: {
+                            tag: true,
+                        },
+                    },
+                    card: !cardId,
+                },
+            }),
+            where
+        );
         return {
             ...result,
             data: result.data.map(transaction => ({
@@ -143,21 +148,24 @@ export class TransactionsService {
                 ...(cardId ? { id: cardId } : {}),
             },
         };
-        return this.withCount(this.prisma.transaction.findMany({
-            where,
-            take,
-            skip,
-            orderBy: {
-                createdAt: 'desc',
-            },
-            include: {
-                tags: {
-                    include: {
-                        tag: true,
+        return this.withCount(
+            this.prisma.transaction.findMany({
+                where,
+                take,
+                skip,
+                orderBy: {
+                    createdAt: 'desc',
+                },
+                include: {
+                    tags: {
+                        include: {
+                            tag: true,
+                        },
                     },
                 },
-            },
-        }), where);
+            }),
+            where
+        );
     }
 
     findOneById(transactionId: string) {
@@ -185,10 +193,7 @@ export class TransactionsService {
     }
 
     private async withCount<P extends Prisma.PrismaPromise<any>>(fn: P, where: Prisma.TransactionWhereInput) {
-        const [data, count] = await this.prisma.$transaction([
-            fn,
-            this.prisma.transaction.count({ where }),
-        ]);
+        const [data, count] = await this.prisma.$transaction([fn, this.prisma.transaction.count({ where })]);
         return {
             count,
             data,

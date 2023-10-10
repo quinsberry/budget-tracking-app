@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTagDto } from './dto/create-tag.dto';
+
 import { PrismaService } from '@/shared/prisma/prisma.service';
+
+import { CreateTagDto } from './dto/create-tag.dto';
 
 @Injectable()
 export class TagsService {
@@ -8,13 +10,13 @@ export class TagsService {
 
     createOne(dto: CreateTagDto) {
         return this.prisma.transactionTag.upsert({
-			where: { name: dto.name },
+            where: { name: dto.name },
             create: {
                 name: dto.name,
             },
-			update: {
-				name: dto.name,
-			},
+            update: {
+                name: dto.name,
+            },
         });
     }
 
@@ -23,25 +25,25 @@ export class TagsService {
     }
 
     async addTagsToTransaction(tags: CreateTagDto[], transactionId: string) {
-		const createdOrFoundTags = await this.createMany(tags);
+        const createdOrFoundTags = await this.createMany(tags);
         return this.prisma.transactionTagsOfTransaction.createMany({
             data: createdOrFoundTags.map(dto => ({
-				transactionId: transactionId,
-				tagId: dto.id,
-			})),
+                transactionId: transactionId,
+                tagId: dto.id,
+            })),
         });
     }
 
     async updateTagsOfTransaction(tags: CreateTagDto[], transactionId: string) {
-		const createdOrFoundTags = await this.createMany(tags);
+        const createdOrFoundTags = await this.createMany(tags);
         return this.prisma.transactionTagsOfTransaction.updateMany({
             where: {
                 transactionId: transactionId,
             },
             data: createdOrFoundTags.map(dto => ({
-				transactionId: transactionId,
-				tagId: dto.id,
-			})),
+                transactionId: transactionId,
+                tagId: dto.id,
+            })),
         });
     }
 

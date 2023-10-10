@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { scrypt, randomBytes, timingSafeEqual } from 'crypto';
+import { randomBytes, scrypt, timingSafeEqual } from 'crypto';
 import { promisify } from 'util';
+
+import { Injectable } from '@nestjs/common';
 
 const scryptAsync = promisify(scrypt);
 

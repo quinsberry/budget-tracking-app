@@ -35,7 +35,7 @@ export class CreateTransactionDto extends createZodDto(CreateTransactionSchema) 
     tags?: string[];
 
     @ApiProperty({
-        default: 12.00,
+        default: 12.0,
     })
     amount: number;
 

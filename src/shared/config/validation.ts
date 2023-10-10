@@ -14,7 +14,7 @@ export const envSchema = z.object({
 
     JWT_SECRET: z.string(),
     JWT_EXPIRES_IN: z.string(),
-    
+
     DATABASE_URL: z.string(),
 });
 

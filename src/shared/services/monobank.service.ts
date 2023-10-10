@@ -1,9 +1,10 @@
-import { MonoResponse } from '@/lib/monobank/Mono';
-import { Invoice } from '@/lib/monobank/types';
-import { Monobank } from '../../lib/monobank';
 import { Injectable, Logger } from '@nestjs/common';
+
+import { Monobank } from '@/lib/monobank';
+import { Invoice } from '@/lib/monobank/types';
+import { Queue } from '@/lib/queue';
+
 import { fromDateToSeconds, fromSecondsToDate } from '../utils/date';
-import { Queue } from '../../lib/queue';
 
 @Injectable()
 export class MonobankService {
@@ -49,7 +50,7 @@ export class MonobankService {
             start: false,
         });
         dateSlices.forEach(({ from, to }, idx) =>
-            this.fetchFullInvoices({ idx, token, accountId, from, to, enqueue: (args) => queue.enqueue(args) })
+            this.fetchFullInvoices({ idx, token, accountId, from, to, enqueue: args => queue.enqueue(args) })
         );
         queue.on('resolve', data => onPartUploaded?.(data));
         queue.on('reject', error => {

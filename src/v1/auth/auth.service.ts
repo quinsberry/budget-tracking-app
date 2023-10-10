@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
+
 import { PasswordService } from '@/shared/services/password.service';
-import { UsersService } from '@/v1/users/users.service';
 import { CreateUserDto } from '@/v1/users/dto/create-user.dto';
+import { UsersService } from '@/v1/users/users.service';
 
 @Injectable()
 export class AuthService {
-    constructor(private usersService: UsersService, private jwtService: JwtService, private hashService: PasswordService) {}
+    constructor(
+        private usersService: UsersService,
+        private jwtService: JwtService,
+        private hashService: PasswordService
+    ) {}
 
     async validateUser(email: string, password: string): Promise<Omit<User, 'password'>> {
         const user = await this.usersService.findByEmail(email);

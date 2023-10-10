@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
 import { Prisma } from '@prisma/client';
+
+import { PrismaService } from './prisma.service';
 
 const PRISMA_SERVICE_OPTIONS = 'PRISMA_SERVICE_OPTIONS';
 

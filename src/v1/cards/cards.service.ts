@@ -1,11 +1,13 @@
 import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { AvailableBank } from '@prisma/client';
+
+import { PrismaService } from '@/shared/prisma/prisma.service';
+import { exclude } from '@/shared/prisma/utils/exclude';
+import { MonobankService } from '@/shared/services/monobank.service';
+import { TransactionsService } from '@/v1/transactions/transactions.service';
+
 import { CreateMonobankCardDto } from './dto/create-monobank-card.dto';
 import { UpdateMonobankCardDto } from './dto/update-monobank-card.dto';
-import { PrismaService } from '@/shared/prisma/prisma.service';
-import { AvailableBank } from '@prisma/client';
-import { MonobankService } from '@/shared/services/monobank.service';
-import { exclude } from '@/shared/prisma/utils/exclude';
-import { TransactionsService } from '@/v1/transactions/transactions.service';
 
 @Injectable()
 export class CardsService {
@@ -13,7 +15,7 @@ export class CardsService {
         private prisma: PrismaService,
         private monobankService: MonobankService,
         @Inject(forwardRef(() => TransactionsService))
-        private transactionService: TransactionsService,
+        private transactionService: TransactionsService
     ) {}
 
     async createMonobankCard(userId: string, dto: CreateMonobankCardDto) {
@@ -56,7 +58,7 @@ export class CardsService {
                 monobankDetails: true,
                 user: true,
                 pkoDetails: true,
-            }
+            },
         });
     }
 

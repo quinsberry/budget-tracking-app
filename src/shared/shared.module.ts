@@ -1,12 +1,9 @@
-import { Global, Module } from "@nestjs/common";
-import { PasswordService } from "./services/password.service";
-import { MonobankService } from "./services/monobank.service";
+import { Global, Module } from '@nestjs/common';
 
+import { MonobankService } from './services/monobank.service';
+import { PasswordService } from './services/password.service';
 
-const providers = [
-    PasswordService,
-    MonobankService,
-];
+const providers = [PasswordService, MonobankService];
 
 @Global()
 @Module({

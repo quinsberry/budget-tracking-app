@@ -4,7 +4,7 @@ export type MonoResponse<T> = T | { errorDescription: string };
 
 export class Mono {
     protected token: string | null;
-    protected apiUrl: string = 'https://api.monobank.ua';
+    protected apiUrl = 'https://api.monobank.ua';
 
     constructor(token?: string) {
         this.token = token ?? null;

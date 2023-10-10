@@ -18,8 +18,4 @@ export const users: Prisma.UserCreateInput[] = [
     },
 ];
 
-export const transactionTags = [
-    'main',
-    'additional',
-    'waste',
-];
+export const transactionTags = ['main', 'additional', 'waste'];

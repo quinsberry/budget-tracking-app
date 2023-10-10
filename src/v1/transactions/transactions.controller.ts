@@ -1,25 +1,27 @@
 import {
-    Controller,
-    Get,
     Body,
-    Patch,
-    Param,
-    UseGuards,
-    NotFoundException,
-    ForbiddenException,
-    Query,
-    ParseUUIDPipe,
-    ParseIntPipe,
+    Controller,
     DefaultValuePipe,
+    ForbiddenException,
+    Get,
+    NotFoundException,
+    Param,
+    ParseIntPipe,
+    ParseUUIDPipe,
+    Patch,
+    Query,
+    UseGuards,
 } from '@nestjs/common';
-import { TransactionsService } from './transactions.service';
-import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { ApiBearerAuth, ApiTags, ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
+
 import { UserId } from '@/shared/decorators/user-id.decorator';
-import { CardsService } from '@/v1/cards/cards.service';
-import { JwtAuthGuard } from '@/v1/auth/guards/jwt-auth.guard';
-import { TransformStringToArrayPipe } from '@/shared/pipes/transform-string-to-array.pipe';
 import { ParseUUIDOrUndefinedPipe } from '@/shared/pipes/parse-uuid-or-undefined.pipe';
+import { TransformStringToArrayPipe } from '@/shared/pipes/transform-string-to-array.pipe';
+import { JwtAuthGuard } from '@/v1/auth/guards/jwt-auth.guard';
+import { CardsService } from '@/v1/cards/cards.service';
+
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { TransactionsService } from './transactions.service';
 
 @Controller()
 @ApiTags('transactions')

@@ -15,12 +15,12 @@ type Options = {
 };
 
 export class Queue extends EventEmitter {
-    private uniqueId: number = 0;
-    private lastRan: number = 0;
+    private uniqueId = 0;
+    private lastRan = 0;
     private timeoutId: NodeJS.Timeout;
-    private currentlyHandled: number = 0;
+    private currentlyHandled = 0;
 
-    readonly tasks: Map<number, Function> = new Map();
+    readonly tasks: Map<number, () => Promise<any>> = new Map();
     state: State = State.IDLE;
     readonly options: Options;
 
@@ -38,7 +38,7 @@ export class Queue extends EventEmitter {
     on(event: 'end', listener: () => void): this;
     on(event: 'dequeue', listener: () => void): this;
     on(event: 'resolve', listener: (value: any) => void): this;
-    on(event: 'reject', listener: (error: any) => void): this 
+    on(event: 'reject', listener: (error: any) => void): this;
     on(event: string | symbol, listener: (...args: any[]) => void): this {
         return super.on(event, listener);
     }
@@ -189,7 +189,7 @@ export class Queue extends EventEmitter {
         }
 
         this.uniqueId = (this.uniqueId + 1) % Number.MAX_SAFE_INTEGER;
-        this.tasks.set(this.uniqueId, tasks);
+        this.tasks.set(this.uniqueId, tasks as () => Promise<any>);
 
         // Start the queue if the queue should resolve new tasks automatically and
         // hasn't been forced to stop:
