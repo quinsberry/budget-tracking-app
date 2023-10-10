@@ -31,6 +31,7 @@ export class TagsService {
                 transactionId: transactionId,
                 tagId: dto.id,
             })),
+            skipDuplicates: true,
         });
     }
 
