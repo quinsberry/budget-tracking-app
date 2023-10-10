@@ -9,6 +9,7 @@
     "node": ">=18.0.0"
   },
   "scripts": {
+    "prepare": "is-ci || husky install",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "prisma:init": "prisma migrate dev --name init",
@@ -64,6 +65,8 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^8.0.3",
+    "is-ci": "^3.0.1",
     "jest": "29.5.0",
     "prettier": "^2.3.2",
     "prisma": "^5.4.1",

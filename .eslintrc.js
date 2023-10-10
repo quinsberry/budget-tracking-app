@@ -18,7 +18,7 @@ module.exports = {
         node: true,
         jest: true,
     },
-    ignorePatterns: ['.eslintrc.js'],
+    ignorePatterns: ['.eslintrc.js', 'lib'],
     rules: {
         indent: 'off',
         '@typescript-eslint/interface-name-prefix': 'off',
@@ -39,7 +39,7 @@ module.exports = {
         ],
         'import/no-unresolved': 'error', // turn on errors for missing imports
         'import/no-named-as-default-member': 'off',
-        "import/default": 0,
+        'import/default': 0,
         'import/order': [
             'error',
             {
