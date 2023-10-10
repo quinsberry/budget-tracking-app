@@ -4,7 +4,7 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { PrismaService } from '@/shared/prisma/prisma.service';
 import { MonobankService } from '@/shared/services/monobank.service';
 import { Decimal } from '@prisma/client/runtime/library';
-import { AvailableBank } from '@prisma/client';
+import { AvailableBank, Prisma } from '@prisma/client';
 import { fromSecondsToDate } from '@/shared/utils/date';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CardsService } from '@/v1/cards/cards.service';
@@ -18,7 +18,7 @@ export class TransactionsService {
         private monobankService: MonobankService,
         private tagsService: TagsService,
         @Inject(forwardRef(() => CardsService))
-        private cardsService: CardsService,
+        private cardsService: CardsService
     ) {}
 
     async createOne(dto: CreateTransactionDto) {
@@ -95,11 +95,56 @@ export class TransactionsService {
         });
     }
 
-    async findAllByCardId(cardId: string, take: number = 100, skip: number = 0) {
-        const transactions = await this.prisma.transaction.findMany({
-            where: {
-                cardId,
+    async findAllOfUser(userId: string, take: number, skip: number, cardId?: string) {
+        const where: Prisma.TransactionFindManyArgs['where'] = {
+            card: {
+                userId,
+                ...(cardId ? { id: cardId } : {}),
             },
+        };
+        const result = await this.withCount(this.prisma.transaction.findMany({
+            where,
+            take,
+            skip,
+            orderBy: {
+                createdAt: 'desc',
+            },
+            include: {
+                tags: {
+                    include: {
+                        tag: true,
+                    },
+                },
+                card: !cardId,
+            },
+        }), where);
+        return {
+            ...result,
+            data: result.data.map(transaction => ({
+                ...transaction,
+                tags: transaction.tags.map(({ tag }) => ({ id: tag.id, name: tag.name })),
+            })),
+        };
+    }
+
+    findAllOfUserByTagNames(tagNames: string[], take: number, skip: number, userId: string, cardId?: string) {
+        const where: Prisma.TransactionWhereInput = {
+            tags: {
+                some: {
+                    OR: tagNames.map(name => ({
+                        tag: {
+                            name,
+                        },
+                    })),
+                },
+            },
+            card: {
+                userId,
+                ...(cardId ? { id: cardId } : {}),
+            },
+        };
+        return this.withCount(this.prisma.transaction.findMany({
+            where,
             take,
             skip,
             orderBy: {
@@ -112,11 +157,7 @@ export class TransactionsService {
                     },
                 },
             },
-        });
-        return transactions.map(transaction => ({
-            ...transaction,
-            tags: transaction.tags.map(({ tag }) => ({ id: tag.id, name: tag.name })),
-        }));
+        }), where);
     }
 
     findOneById(transactionId: string) {
@@ -141,5 +182,16 @@ export class TransactionsService {
                 // TODO: add tags update
             },
         });
+    }
+
+    private async withCount<P extends Prisma.PrismaPromise<any>>(fn: P, where: Prisma.TransactionWhereInput) {
+        const [data, count] = await this.prisma.$transaction([
+            fn,
+            this.prisma.transaction.count({ where }),
+        ]);
+        return {
+            count,
+            data,
+        };
     }
 }
