@@ -5,6 +5,7 @@ export const envSchema = z.object({
 
     HOSTNAME: z.string().optional(),
     PORT: z.string(),
+    CORS_ORIGIN: z.string(),
 
     DB_HOST: z.string(),
     DB_PORT: z.string(),

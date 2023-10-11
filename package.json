@@ -10,7 +10,7 @@
   },
   "scripts": {
     "prepare": "is-ci || husky install",
-    "build": "nest build",
+    "build": "nest build --webpack",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "prisma:init": "prisma migrate dev --name init",
     "prisma:deploy": "prisma migrate deploy",
@@ -19,7 +19,7 @@
     "prisma:seed": "npx prisma db push --force-reset && npx prisma db seed",
     "docker-up:dev": "docker compose -f docker-compose.dev.yml up -d",
     "docker-down:dev": "docker compose -f docker-compose.dev.yml down",
-    "start": "cross-env NODE_ENV=production nest start",
+    "start": "cross-env NODE_ENV=development node dist/main",
     "start:dev": "cross-env NODE_ENV=development nest start --watch --exec 'node -r tsconfig-paths/register -r ts-node/register ./src/main.ts'",
     "start:prod": "cross-env NODE_ENV=production node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

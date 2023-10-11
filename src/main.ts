@@ -49,7 +49,7 @@ async function bootstrap() {
 
     // CORS
     if (config.cors.enabled) {
-        app.enableCors({ credentials: true, origin: true });
+        app.enableCors({ credentials: true, origin: config.cors.origin });
     }
 
     await app.listen(config.port, config.hostname);
