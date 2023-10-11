@@ -32,6 +32,12 @@ dependencies:
   cross-env:
     specifier: ^7.0.3
     version: 7.0.3
+  husky:
+    specifier: ^8.0.3
+    version: 8.0.3
+  is-ci:
+    specifier: ^3.0.1
+    version: 3.0.1
   nestjs-zod:
     specifier: ^3.0.0
     version: 3.0.0(@nestjs/common@9.0.0)(@nestjs/core@9.0.0)(@nestjs/swagger@7.1.10)(zod@3.22.2)
@@ -106,12 +112,6 @@ devDependencies:
   eslint-plugin-prettier:
     specifier: ^4.0.0
     version: 4.0.0(eslint-config-prettier@8.3.0)(eslint@8.51.0)(prettier@2.3.2)
-  husky:
-    specifier: ^8.0.3
-    version: 8.0.3
-  is-ci:
-    specifier: ^3.0.1
-    version: 3.0.1
   jest:
     specifier: 29.5.0
     version: 29.5.0(@types/node@18.16.12)(ts-node@10.0.0)
@@ -2274,7 +2274,6 @@ packages:
   /ci-info@3.9.0:
     resolution: {integrity: sha512-NIxF55hv4nSqQswkAeiOi1r83xy8JldOFDTWiug55KBu9Jnblncd2U6ViHmYgHf01TPZS77NJBhBMKdWj9HQMQ==}
     engines: {node: '>=8'}
-    dev: true
 
   /cjs-module-lexer@1.2.3:
     resolution: {integrity: sha512-0TNiGstbQmCFwt4akjjBg5pLRTSyj/PkWQ1ZoO2zntmg9yLqSRxwEa4iCfQLGjqhiqBfOJa7W/E8wfGrTDmlZQ==}
@@ -3531,7 +3530,7 @@ packages:
     resolution: {integrity: sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==}
     engines: {node: '>=14'}
     hasBin: true
-    dev: true
+    dev: false
 
   /iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -3685,7 +3684,7 @@ packages:
     hasBin: true
     dependencies:
       ci-info: 3.9.0
-    dev: true
+    dev: false
 
   /is-core-module@2.13.0:
     resolution: {integrity: sha512-Z7dk6Qo8pOCp3l4tsX2C5ZVas4V+UxwQodwZhLopL91TX8UyyHEXafPcyoeeWuLrwzHcr3igO78wNLwHJHsMCQ==}
