@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package*.json /app/
 
-RUN npm ci
+RUN npm install
 
 COPY . .
 
@@ -14,10 +14,10 @@ RUN npm run build
 
 FROM node:20-alpine as production
 
-COPY --from=builder ./build .
+COPY --from=builder ./dist .
 
 ENV NODE_ENV=production
 
-EXPOSE 3000
+EXPOSE 4000
 
-CMD node ./build
+CMD [ "node", "dist/main.js" ]
