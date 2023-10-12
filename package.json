@@ -1,8 +1,8 @@
 {
-  "name": "budget-tracking-app",
+  "name": "budget-tracking-app-backend",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "The backend for the budget tracking app",
+  "author": "Eugene Kolesnyk <eugeniusz.kolesnyk@gmail.com>",
   "private": true,
   "license": "UNLICENSED",
   "engines": {
