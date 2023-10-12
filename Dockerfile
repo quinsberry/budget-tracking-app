@@ -17,7 +17,7 @@ RUN pnpm build
 FROM base As production
 WORKDIR /app
 COPY --chown=node:node --from=builder /app/node_modules ./node_modules
-COPY --chown=node:node dist ./dist
+COPY --chown=node:node --from=builder /app/dist ./dist
 ENV NODE_ENV=production
 EXPOSE 4000
 CMD [ "node", "dist/main.js" ]
