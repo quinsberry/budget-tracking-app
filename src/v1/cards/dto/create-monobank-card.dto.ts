@@ -21,8 +21,8 @@ export class CreateMonobankCardDto extends createZodDto(CreateMonobankCardSchema
     cardNumber: string;
 
     @ApiProperty({
-        default: 1696444881,
-        description: "ISO format, e.g. '023-10-06T17:42:55.527Z'",
+        default: '2023-08-06T17:42:55.527Z',
+        description: 'ISO format',
     })
     startTrackingTime: string;
 

@@ -97,13 +97,32 @@ export class TransactionsService {
         });
     }
 
-    async findAllOfUser(userId: string, take: number, skip: number, cardId?: string) {
+    async findAllOfUser({
+        userId,
+        take,
+        skip,
+        cardId,
+        from,
+        to,
+    }: {
+        userId: string;
+        take: number;
+        skip: number;
+        cardId?: string;
+        from?: Date;
+        to?: Date;
+    }) {
         const where: Prisma.TransactionFindManyArgs['where'] = {
             card: {
                 userId,
                 ...(cardId ? { id: cardId } : {}),
             },
+            createdAt: {
+                ...(from ? { gte: from } : {}),
+                ...(to ? { lte: to } : {}),
+            },
         };
+        this.prisma.transaction.count({ where });
         const result = await this.withCount(
             this.prisma.transaction.findMany({
                 where,
@@ -115,10 +134,25 @@ export class TransactionsService {
                 include: {
                     tags: {
                         include: {
-                            tag: true,
+                            tag: {
+                                select: {
+                                    name: true,
+                                },
+                            },
                         },
                     },
-                    card: !cardId,
+                    card: !cardId
+                        ? {
+                              select: {
+                                  id: true,
+                                  description: true,
+                                  bank: true,
+                                  cardNumber: true,
+                                  startTrackingTime: true,
+                                  createdAt: true,
+                              },
+                          }
+                        : false,
                 },
             }),
             where
@@ -127,12 +161,28 @@ export class TransactionsService {
             ...result,
             data: result.data.map(transaction => ({
                 ...transaction,
-                tags: transaction.tags.map(({ tag }) => ({ id: tag.id, name: tag.name })),
+                tags: transaction.tags.map(({ tag }) => tag.name),
             })),
         };
     }
 
-    findAllOfUserByTagNames(tagNames: string[], take: number, skip: number, userId: string, cardId?: string) {
+    findAllOfUserByTagNames({
+        tagNames,
+        take,
+        skip,
+        userId,
+        cardId,
+        from,
+        to,
+    }: {
+        tagNames: string[];
+        take: number;
+        skip: number;
+        userId: string;
+        cardId?: string;
+        from?: Date;
+        to?: Date;
+    }) {
         const where: Prisma.TransactionWhereInput = {
             tags: {
                 some: {
@@ -146,6 +196,10 @@ export class TransactionsService {
             card: {
                 userId,
                 ...(cardId ? { id: cardId } : {}),
+            },
+            createdAt: {
+                ...(from ? { gte: from } : {}),
+                ...(to ? { lte: to } : {}),
             },
         };
         return this.withCount(
@@ -192,10 +246,18 @@ export class TransactionsService {
         });
     }
 
-    private async withCount<P extends Prisma.PrismaPromise<any>>(fn: P, where: Prisma.TransactionWhereInput) {
-        const [data, count] = await this.prisma.$transaction([fn, this.prisma.transaction.count({ where })]);
+    private async withCount<T extends any[], P extends Prisma.PrismaPromise<T>>(
+        fn: P,
+        where: Prisma.TransactionWhereInput
+    ) {
+        const [data, totalCount] = await this.prisma.$transaction<
+            [Prisma.PrismaPromise<T>, Prisma.PrismaPromise<number>]
+        >([fn, this.prisma.transaction.count({ where })]);
         return {
-            count,
+            metadata: {
+                totalCount,
+                count: data.length,
+            },
             data,
         };
     }
