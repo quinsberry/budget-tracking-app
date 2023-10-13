@@ -76,7 +76,10 @@ export class TransactionsService {
         }
     }
 
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { name: 'dailyTransactionsSeeding' })
+    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
+        name: 'dailyTransactionsSeeding',
+        timeZone: 'Europe/Warsaw',
+    })
     async dailyTransactionsSeeding(): Promise<void> {
         const cards = await this.cardsService.findAll();
         const monthAgo = new Date();
