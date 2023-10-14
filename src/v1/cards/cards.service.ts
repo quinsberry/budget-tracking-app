@@ -70,10 +70,11 @@ export class CardsService {
         });
     }
 
-    async findOne(cardId: string) {
+    async findOne(cardId: string, userId?: string) {
         const card = await this.prisma.card.findUnique({
             where: {
                 id: cardId,
+                ...(userId ? { userId } : {}),
             },
             include: {
                 monobankDetails: true,

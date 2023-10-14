@@ -76,8 +76,8 @@ export class TransactionsService {
     }
 
     async seedTransactionsByUserId(userId: string, cardId: string, from: Date): Promise<void> {
-        const card = await this.cardsService.findOne(cardId);
-        if (card.userId === userId) {
+        const card = await this.cardsService.findOne(cardId, userId);
+        if (card) {
             return this.seedTransactions(cardId, from);
         }
     }
