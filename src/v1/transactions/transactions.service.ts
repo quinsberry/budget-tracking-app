@@ -1,5 +1,4 @@
-import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Inject, Injectable, NotImplementedException, forwardRef } from '@nestjs/common';
 import { AvailableBank, Prisma } from '@prisma/client';
 import { Decimal } from '@prisma/client/runtime/library';
 
@@ -72,20 +71,14 @@ export class TransactionsService {
                 },
             });
         } else {
-            throw new NotFoundException('Functionality for your bank was not implemented yet');
+            throw new NotImplementedException('Functionality for your bank was not implemented yet');
         }
     }
 
-    @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, {
-        name: 'dailyTransactionsSeeding',
-        timeZone: 'Europe/Warsaw',
-    })
-    async dailyTransactionsSeeding(): Promise<void> {
-        const cards = await this.cardsService.findAll();
-        const monthAgo = new Date();
-        monthAgo.setDate(monthAgo.getDate() - 30);
-        for (const card of cards) {
-            this.seedTransactions(card.id, monthAgo);
+    async seedTransactionsByUserId(userId: string, cardId: string, from: Date): Promise<void> {
+        const card = await this.cardsService.findOne(cardId);
+        if (card.userId === userId) {
+            return this.seedTransactions(cardId, from);
         }
     }
 
