@@ -9,6 +9,10 @@ erDiagram
 		value Monobank
 		value PKO
 	}
+	Provider {
+		value Credentials
+		value Google
+	}
 	User {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String email
@@ -16,6 +20,18 @@ erDiagram
 		String full_name
 		DateTime created_at  "now()"
 		DateTime updated_at
+	}
+	Account {
+		String id PK  "dbgenerated(gen_random_uuid())"
+		String user_id
+		Provider provider
+		String provider_account_id
+	}
+	Token {
+		String user_id
+		DateTime expires
+		String token
+		String user_agent
 	}
 	UserSettings {
 		String id PK  "dbgenerated(gen_random_uuid())"
@@ -75,6 +91,9 @@ erDiagram
 		DateTime created_at  "now()"
 	}
 	User }|--|{ UserSettings : settings
+	Account }o--|| User : User
+	Account }o--|| Provider : "enum:provider"
+	Token }o--|| User : User
 	UserSettings }|--|{ User : user
 	UserSettings }o--|| Locale : locale
 	UserSettings }o--|| ColorScheme : "enum:color_scheme"

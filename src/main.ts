@@ -2,6 +2,7 @@ import { LogLevel } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 
 import { AppModule } from '@/app.module';
 import { AppConfiguration } from '@/shared/config/configuration';
@@ -22,6 +23,7 @@ async function bootstrap() {
     const config = configService.get<AppConfiguration>('app');
 
     app.setGlobalPrefix(config.globalPrefix);
+    app.use(cookieParser());
 
     // enable shutdown hook
     app.enableShutdownHooks();

@@ -1,19 +1,21 @@
 import { Injectable } from '@nestjs/common';
+import { Provider } from '@prisma/client';
 
 import { PrismaService } from '@/shared/prisma/prisma.service';
+import { PasswordService } from '@/shared/services/password.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-    constructor(private prisma: PrismaService) {}
+    constructor(private readonly prismaService: PrismaService, private readonly passwordService: PasswordService) {}
 
     getAll() {
-        return this.prisma.user.findMany();
+        return this.prismaService.user.findMany();
     }
 
     findByEmail(email: string) {
-        return this.prisma.user.findUnique({
+        return this.prismaService.user.findUnique({
             where: {
                 email,
             },
@@ -21,7 +23,7 @@ export class UsersService {
     }
 
     findById(id: string) {
-        return this.prisma.user.findUnique({
+        return this.prismaService.user.findUnique({
             where: {
                 id,
             },
@@ -33,12 +35,37 @@ export class UsersService {
     }
 
     async create(dto: CreateUserDto) {
-        return this.prisma.user.create({
+        const user = await this.prismaService.user.create({
             data: {
                 ...dto,
+                tokens: {
+                    create: [],
+                },
+                accounts: {
+                    create: [],
+                },
                 settings: {
                     create: {},
                 },
+            },
+            include: {
+                settings: true,
+                cards: true,
+                accounts: true,
+                tokens: true,
+            },
+        });
+        return user;
+    }
+
+    addAccountToUser(userId: string, provider: Provider, providerAccountId: string) {
+        return this.prismaService.account.upsert({
+            where: { userId, provider, providerAccountId },
+            update: {},
+            create: {
+                provider,
+                providerAccountId,
+                userId,
             },
         });
     }
