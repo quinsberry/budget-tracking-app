@@ -24,6 +24,8 @@ model User {
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")
   settings  UserSettings?
+
+  @@map("users")
 }
 
 model Account {
@@ -32,6 +34,8 @@ model Account {
   provider          Provider
   providerAccountId String   @unique @map("provider_account_id")
   User              User     @relation(fields: [userId], references: [id])
+
+  @@map("accounts")
 }
 
 model Token {
@@ -40,6 +44,8 @@ model Token {
   token     String   @unique
   userAgent String   @map("user_agent")
   User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tokens")
 }
 
 model UserSettings {
@@ -49,6 +55,8 @@ model UserSettings {
   user        User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   locale      Locale?     @relation(fields: [localeId], references: [id], onDelete: Cascade)
   localeId    String?     @map("locale_id") @db.VarChar(15)
+
+  @@map("user_settings")
 }
 
 model Locale {
@@ -60,6 +68,8 @@ model Locale {
   nativeName   String         @map("native_name")
   commonName   String?        @map("common_name")
   userSettings UserSettings[]
+
+  @@map("locales")
 }
 
 enum ColorScheme {
@@ -92,6 +102,8 @@ model Card {
   pkoDetails        PKODetails?
   userId            String           @map("user_id") @db.Uuid
   user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("cards")
 }
 
 model MonobankDetails {
@@ -100,6 +112,8 @@ model MonobankDetails {
   isTokenValid Boolean @default(true) @map("is_token_valid")
   cardId       String  @unique @map("card_id") @db.Uuid
   card         Card    @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@map("monobank_details")
 }
 
 model PKODetails {
@@ -107,6 +121,8 @@ model PKODetails {
   token  String
   cardId String @unique @map("card_id") @db.Uuid
   card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@map("pko_details")
 }
 
 model Transaction {
@@ -120,6 +136,8 @@ model Transaction {
   createdAt           DateTime                       @default(now()) @map("created_at")
   cardId              String                         @map("card_id") @db.Uuid
   card                Card                           @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
 }
 
 model TransactionTag {
@@ -127,6 +145,8 @@ model TransactionTag {
   name         String                         @unique
   transactions TransactionTagsOfTransaction[]
   createdAt    DateTime                       @default(now()) @map("created_at")
+
+  @@map("transaction_tags")
 }
 
 model TransactionTagsOfTransaction {
@@ -137,4 +157,5 @@ model TransactionTagsOfTransaction {
   createdAt     DateTime       @default(now()) @map("created_at")
 
   @@id([transactionId, tagId])
+  @@map("transaction_tags_of_transactions")
 }

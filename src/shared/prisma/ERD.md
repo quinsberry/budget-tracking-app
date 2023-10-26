@@ -13,7 +13,7 @@ erDiagram
 		value Credentials
 		value Google
 	}
-	User {
+	users {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String email
 		String password  "nullable"
@@ -21,25 +21,25 @@ erDiagram
 		DateTime created_at  "now()"
 		DateTime updated_at
 	}
-	Account {
+	accounts {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String user_id
 		Provider provider
 		String provider_account_id
 	}
-	Token {
+	tokens {
 		String user_id
 		DateTime expires
 		String token
 		String user_agent
 	}
-	UserSettings {
+	user_settings {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		ColorScheme color_scheme "System"
 		String user_id
 		String locale_id  "nullable"
 	}
-	Locale {
+	locales {
 		String id
 		String language_code
 		String country_code  "nullable"
@@ -48,7 +48,7 @@ erDiagram
 		String native_name
 		String common_name  "nullable"
 	}
-	Card {
+	cards {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String original_id  "nullable"
 		String description  "nullable"
@@ -59,18 +59,18 @@ erDiagram
 		AvailableBank bank
 		String user_id
 	}
-	MonobankDetails {
+	monobank_details {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String token
 		Boolean is_token_valid  "undefined(undefined)"
 		String card_id
 	}
-	PKODetails {
+	pko_details {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String token
 		String card_id
 	}
-	Transaction {
+	transactions {
 		String id PK  "dbgenerated(gen_random_uuid())"
 		String original_id
 		String description  "nullable"
@@ -80,31 +80,31 @@ erDiagram
 		DateTime created_at  "now()"
 		String card_id
 	}
-	TransactionTag {
+	transaction_tags {
 		Int id PK  "autoincrement()"
 		String name
 		DateTime created_at  "now()"
 	}
-	TransactionTagsOfTransaction {
+	transaction_tags_of_transactions {
 		String transaction_id
 		Int tag_id
 		DateTime created_at  "now()"
 	}
-	User }|--|{ UserSettings : settings
-	Account }o--|| User : User
-	Account }o--|| Provider : "enum:provider"
-	Token }o--|| User : User
-	UserSettings }|--|{ User : user
-	UserSettings }o--|| Locale : locale
-	UserSettings }o--|| ColorScheme : "enum:color_scheme"
-	Card }|--|{ MonobankDetails : monobankDetails
-	Card }|--|{ PKODetails : pkoDetails
-	Card }o--|| User : user
-	Card }o--|| AvailableBank : "enum:bank"
-	MonobankDetails }|--|{ Card : card
-	PKODetails }|--|{ Card : card
-	Transaction }o--|| Card : card
-	TransactionTagsOfTransaction }o--|| Transaction : transaction
-	TransactionTagsOfTransaction }o--|| TransactionTag : tag
+	users }|--|{ user_settings : settings
+	accounts }o--|| users : User
+	accounts }o--|| Provider : "enum:provider"
+	tokens }o--|| users : User
+	user_settings }|--|{ users : user
+	user_settings }o--|| locales : locale
+	user_settings }o--|| ColorScheme : "enum:color_scheme"
+	cards }|--|{ monobank_details : monobankDetails
+	cards }|--|{ pko_details : pkoDetails
+	cards }o--|| users : user
+	cards }o--|| AvailableBank : "enum:bank"
+	monobank_details }|--|{ cards : card
+	pko_details }|--|{ cards : card
+	transactions }o--|| cards : card
+	transaction_tags_of_transactions }o--|| transactions : transaction
+	transaction_tags_of_transactions }o--|| transaction_tags : tag
 
 ```
