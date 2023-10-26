@@ -7,6 +7,12 @@ export const envSchema = z.object({
     PORT: z.string(),
     CORS_ORIGIN: z.string(),
 
+    API_URL: z.string(),
+
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+    GOOGLE_CALLBACK_URL: z.string(),
+
     DB_HOST: z.string(),
     DB_PORT: z.string(),
     DB_USER: z.string(),
@@ -15,6 +21,7 @@ export const envSchema = z.object({
 
     JWT_SECRET: z.string(),
     JWT_EXPIRES_IN: z.string(),
+    REFRESH_EXPIRES_IN: z.string(),
 
     DATABASE_URL: z.string(),
 });

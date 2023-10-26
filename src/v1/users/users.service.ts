@@ -34,8 +34,8 @@ export class UsersService {
         });
     }
 
-    async create(dto: CreateUserDto) {
-        const user = await this.prismaService.user.create({
+    create(dto: Omit<CreateUserDto, 'password'> & { password?: string }) {
+        return this.prismaService.user.create({
             data: {
                 ...dto,
                 tokens: {
@@ -55,7 +55,6 @@ export class UsersService {
                 tokens: true,
             },
         });
-        return user;
     }
 
     addAccountToUser(userId: string, provider: Provider, providerAccountId: string) {
