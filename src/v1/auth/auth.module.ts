@@ -1,5 +1,6 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
@@ -7,6 +8,7 @@ import { AppConfiguration } from '@/shared/config/configuration';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersService } from '../users/users.service';
 
@@ -23,8 +25,9 @@ import { UsersService } from '../users/users.service';
             },
         }),
         PassportModule,
+        HttpModule,
     ],
-    providers: [AuthService, UsersService, JwtStrategy],
+    providers: [AuthService, UsersService, JwtStrategy, GoogleStrategy],
     controllers: [AuthController],
 })
 export class AuthModule {}

@@ -1,7 +1,9 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+import { AppConfiguration } from '@/shared/config/configuration';
 import { UsersService } from '@/v1/users/users.service';
 
 import { JwtPayload } from '../types';
@@ -10,10 +12,10 @@ import { JwtPayload } from '../types';
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private readonly logger = new Logger(JwtStrategy.name);
 
-    constructor(private usersService: UsersService) {
+    constructor(private readonly usersService: UsersService, private readonly configService: ConfigService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            secretOrKey: process.env.JWT_ACCESS_SECRET,
+            secretOrKey: configService.get<AppConfiguration>('app').jwt.secret,
             ignoreExpiration: false,
         });
     }

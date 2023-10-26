@@ -5,6 +5,7 @@ import { Provider, Token, User } from '@prisma/client';
 import { add } from 'date-fns';
 import { v4 } from 'uuid';
 
+import { AppConfiguration } from '@/shared/config/configuration';
 import { PrismaService } from '@/shared/prisma/prisma.service';
 import { PasswordService } from '@/shared/services/password.service';
 import { CreateUserDto } from '@/v1/users/dto/create-user.dto';
@@ -19,7 +20,7 @@ export class AuthService {
     constructor(
         private readonly usersService: UsersService,
         private readonly jwtService: JwtService,
-        private readonly hashService: PasswordService,
+        private readonly passwordService: PasswordService,
         private readonly configService: ConfigService,
         private readonly prismaService: PrismaService
     ) {}
@@ -44,12 +45,12 @@ export class AuthService {
         if (existedUser) {
             throw new ConflictException('The user with this email already exists');
         }
-        const hashedPassword = await this.hashService.hashPassword(dto.password);
+        const hashedPassword = await this.passwordService.hashPassword(dto.password);
         const user = await this.usersService.create({
             ...dto,
             password: hashedPassword,
         });
-        await this.usersService.addAccountToUser(user.id, Provider.Credentials, Provider.Credentials);
+        await this.usersService.addAccountToUser(user.id, Provider.Credentials, user.id);
         return user;
     }
 
@@ -58,7 +59,7 @@ export class AuthService {
         if (!user) {
             throw new UnauthorizedException('Login or password is incorrect');
         }
-        const passwordValid = await this.hashService.comparePassword(user.password, password);
+        const passwordValid = await this.passwordService.comparePassword(user.password, password);
         if (!passwordValid) {
             throw new UnauthorizedException('Login or password is incorrect');
         }
@@ -83,15 +84,16 @@ export class AuthService {
             },
         });
         const token = _token?.token ?? '';
+        const refreshExpiresIn = this.configService.get<AppConfiguration>('app').jwt.refreshExpiresIn;
         return this.prismaService.token.upsert({
             where: { token },
             update: {
                 token: v4(),
-                expires: add(new Date(), { months: 1 }),
+                expires: add(new Date(), { days: Number(refreshExpiresIn) }),
             },
             create: {
                 token: v4(),
-                expires: add(new Date(), { months: 1 }),
+                expires: add(new Date(), { days: Number(refreshExpiresIn) }),
                 userId,
                 userAgent: agent,
             },
@@ -100,5 +102,28 @@ export class AuthService {
 
     deleteRefreshToken(token: string) {
         return this.prismaService.token.delete({ where: { token } });
+    }
+
+    async providerAuth(props: {
+        fullName: string;
+        email: string;
+        originalProviderId: string;
+        provider: Provider;
+    }): Promise<User> {
+        const { fullName, email, provider, originalProviderId } = props;
+        let user = await this.usersService.findByEmail(email);
+        if (!user) {
+            user = await this.usersService.create({
+                email,
+                fullName,
+            });
+        }
+        await this.usersService.addAccountToUser(user.id, provider, originalProviderId);
+        return user;
+    }
+
+    async providerTokens(email: string, agent: string): Promise<Tokens> {
+        const user = await this.usersService.findByEmail(email);
+        return this.generateTokens(user, agent);
     }
 }
